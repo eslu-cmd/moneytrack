@@ -1667,6 +1667,10 @@ function fmt(n){return Number(n).toLocaleString('en-PH',{minimumFractionDigits:2
 function fmtK(n){return n>=1000?(n/1000).toFixed(0)+'k':n;}
 function ordinal(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+}
+
 init();
 </script>
 </body>
