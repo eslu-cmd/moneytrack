@@ -268,31 +268,65 @@
     ::-webkit-scrollbar{width:4px;}
     ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
 
-    /* ── MOBILE ───────────────────────────────────────── */
+    /* ── MOBILE HEADER ───────────────────────────────── */
+    .mobile-header{display:none;}
+
+    /* ── BOTTOM NAV ──────────────────────────────────── */
+    .bottom-nav{display:none;}
+    .bnav-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:transparent;color:var(--text3);cursor:pointer;padding:8px 4px;transition:color .15s;-webkit-tap-highlight-color:transparent;}
+    .bnav-tab svg{width:22px;height:22px;transition:color .15s;}
+    .bnav-tab.active{color:var(--accent);}
+    .bnav-label{font-size:9.5px;font-weight:600;letter-spacing:.03em;}
+
+    /* ── FAB ─────────────────────────────────────────── */
     .fab{display:none;}
+
     @media(max-width:640px){
-      .nav{padding:0 12px;overflow-x:auto;height:48px;}
-      .nav-brand,.nav-right{display:none;}
-      .nav-tab{padding:0 10px;height:48px;font-size:12px;}
-      .main{padding:16px 16px calc(80px + env(safe-area-inset-bottom));}
+      /* hide desktop nav */
+      .nav{display:none;}
+
+      /* thin top bar */
+      .mobile-header{display:flex;align-items:center;justify-content:space-between;padding:0 16px;padding-top:env(safe-area-inset-top);height:calc(48px + env(safe-area-inset-top));background:var(--s1);border-bottom:1px solid var(--border);flex-shrink:0;}
+      .mobile-header-brand{font-size:15px;font-weight:700;letter-spacing:-.01em;color:var(--text);}
+      .mobile-header-actions{display:flex;gap:6px;align-items:center;}
+
+      /* bottom nav */
+      .bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;padding-bottom:env(safe-area-inset-bottom);background:var(--s1);border-top:1px solid var(--border);z-index:95;}
+
+      /* main scrollable area */
+      .main{padding:16px 16px calc(72px + env(safe-area-inset-bottom));}
+
+      /* grids */
       .grid-4{grid-template-columns:1fr 1fr;gap:10px;}
       .grid-3{grid-template-columns:1fr 1fr;gap:10px;}
       .grid-2{grid-template-columns:1fr;gap:12px;}
       .wallet-grid{grid-template-columns:1fr 1fr;gap:10px;}
+
+      /* cards */
       .stat-card{padding:14px;} .stat-value{font-size:18px;}
       .wallet-balance{font-size:17px;}
+
+      /* forms */
       .form-row,.form-row-3{grid-template-columns:1fr;gap:0;}
       .wallet-type-grid{grid-template-columns:1fr 1fr;}
+      .form-input,.form-select{font-size:16px;}
+
+      /* modals — bottom sheet */
       .modal-backdrop{padding:0;align-items:flex-end;backdrop-filter:blur(6px);}
-      .modal{border-radius:20px 20px 0 0;max-height:96vh;max-width:100%;}
-      .modal-body{padding:18px 20px 36px;}
+      .modal{border-radius:20px 20px 0 0;max-height:92vh;max-width:100%;}
+      .modal-body{padding:18px 20px calc(28px + env(safe-area-inset-bottom));}
       .modal-header{padding:20px 20px 0;}
       .ob-card{padding:28px 20px;}
+
+      /* charts */
       .chart-wrap{height:180px;}
+
+      /* filters */
       .filter-bar{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;}
       .filter-bar .form-select,.filter-bar .form-input{flex-shrink:0;}
-      .form-input,.form-select{font-size:16px;}
-      .fab{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));right:20px;width:50px;height:50px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 24px rgba(91,106,245,.5);display:flex;align-items:center;justify-content:center;z-index:90;transition:transform .15s;}
+
+      /* FAB above bottom nav */
+      .fab{position:fixed;bottom:calc(68px + env(safe-area-inset-bottom));right:20px;width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(91,106,245,.5);display:flex;align-items:center;justify-content:center;z-index:90;transition:transform .15s;}
       .fab:active{transform:scale(.92);}
     }
   </style>
@@ -348,18 +382,31 @@
 </div>
 
 <!-- APP -->
-<div id="app" style="display:none;flex-direction:column;height:100vh">
+<div id="app" style="display:none;flex-direction:column;height:100vh;height:100dvh">
+
+  <!-- mobile top bar -->
+  <div class="mobile-header">
+    <span class="mobile-header-brand">Vault</span>
+    <div class="mobile-header-actions">
+      <button class="privacy-btn" id="privacy-btn-mobile" onclick="togglePrivacy()" title="Hide/show balances" style="border:none;background:transparent;color:var(--text3);padding:6px;cursor:pointer;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="openModal('wallet')" style="font-size:12px;padding:5px 10px;">+ Wallet</button>
+    </div>
+  </div>
+
+  <!-- desktop top nav -->
   <nav class="nav">
     <span class="nav-brand">Vault</span>
-    <button class="nav-tab active" onclick="goPage('dashboard',this)">Dashboard</button>
-    <button class="nav-tab" onclick="goPage('transactions',this)">Transactions</button>
-    <button class="nav-tab" onclick="goPage('reports',this)">Reports</button>
-    <button class="nav-tab" onclick="goPage('budget',this)">Budget</button>
-    <button class="nav-tab" onclick="goPage('settings',this)">Settings</button>
+    <button class="nav-tab active" data-page="dashboard" onclick="goPage('dashboard')">Dashboard</button>
+    <button class="nav-tab" data-page="transactions" onclick="goPage('transactions')">Transactions</button>
+    <button class="nav-tab" data-page="reports" onclick="goPage('reports')">Reports</button>
+    <button class="nav-tab" data-page="budget" onclick="goPage('budget')">Budget</button>
+    <button class="nav-tab" data-page="settings" onclick="goPage('settings')">Settings</button>
     <div class="nav-right">
       <button class="privacy-btn" id="privacy-btn" onclick="togglePrivacy()" title="Hide/show balances">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-  </button>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
       <button class="btn btn-primary btn-sm" onclick="openModal('tx')">+ Transaction</button>
       <button class="btn btn-ghost btn-sm" onclick="openModal('wallet')">+ Wallet</button>
       <button class="btn btn-ghost btn-sm" onclick="openModal('io')">⬇ Backup</button>
@@ -374,7 +421,7 @@
       <div id="dash-forecast-wrap" class="mb-16" style="display:none">
         <div class="section-header">
           <span class="section-title">Savings Forecast</span>
-          <button class="btn btn-ghost btn-sm" onclick="goPage('settings',document.querySelectorAll('.nav-tab')[4])">Edit</button>
+          <button class="btn btn-ghost btn-sm" onclick="goPage('settings')">Edit</button>
         </div>
         <div class="forecast-card" id="dash-forecast"></div>
       </div>
@@ -387,11 +434,14 @@
         <div class="section-header"><span class="section-title">Savings Goals</span></div>
         <div id="dash-goals" class="grid-3"></div>
       </div>
-      <div class="section-header"><span class="section-title">Wallets</span></div>
+      <div class="section-header">
+        <span class="section-title">Wallets</span>
+        <button class="btn btn-ghost btn-sm" onclick="openModal('wallet')">+ Wallet</button>
+      </div>
       <div class="wallet-grid mb-16" id="dash-wallets"></div>
       <div class="section-header">
         <span class="section-title">Recent Transactions</span>
-        <button class="btn btn-ghost btn-sm" onclick="goPage('transactions',document.querySelectorAll('.nav-tab')[1])">View all</button>
+        <button class="btn btn-ghost btn-sm" onclick="goPage('transactions')">View all</button>
       </div>
       <div class="card"><div class="tx-list" id="dash-recent"></div></div>
     </div>
@@ -514,7 +564,7 @@
         <div class="settings-section-title">Committed Monthly Expenses</div>
         <p style="font-size:13px;color:var(--text2);margin-bottom:12px">These are fixed costs you commit to every month — rent, internet, subscriptions. They're locked off from your spendable income in the forecast. Toggle them in the Reminders list below.</p>
         <div class="card mb-12"><div id="set-committed-list"></div></div>
-        <button class="btn btn-ghost btn-sm" onclick="goBudgetTab('reminders', null);goPage('budget', document.querySelectorAll('.nav-tab')[3])">Manage Reminders →</button>
+        <button class="btn btn-ghost btn-sm" onclick="goPage('budget');goBudgetTab('reminders',document.querySelector('#page-budget .page-tab-btn'))">Manage Reminders →</button>
       </div>
 
       <div class="settings-section">
@@ -538,6 +588,30 @@
     </div>
 
   </div>
+
+  <!-- mobile bottom nav -->
+  <nav class="bottom-nav">
+    <button class="bnav-tab active" data-page="dashboard" onclick="goPage('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1v-9.5z"/><path d="M9 21V13h6v8"/></svg>
+      <span class="bnav-label">Home</span>
+    </button>
+    <button class="bnav-tab" data-page="transactions" onclick="goPage('transactions')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+      <span class="bnav-label">Transactions</span>
+    </button>
+    <button class="bnav-tab" data-page="reports" onclick="goPage('reports')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+      <span class="bnav-label">Reports</span>
+    </button>
+    <button class="bnav-tab" data-page="budget" onclick="goPage('budget')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <span class="bnav-label">Budget</span>
+    </button>
+    <button class="bnav-tab" data-page="settings" onclick="goPage('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      <span class="bnav-label">Settings</span>
+    </button>
+  </nav>
 </div>
 
 <!-- MOBILE FAB -->
@@ -791,11 +865,14 @@ function setToday(){document.getElementById('tx-date').value=new Date().toISOStr
 // ── PRIVACY ───────────────────────────────────────────────────────────────────
 function togglePrivacy(){
   privacyMode=!privacyMode;
-  const btn=document.getElementById('privacy-btn');
-  btn.style.color=privacyMode?'var(--accent)':'';
-  btn.innerHTML=privacyMode
-    ?`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
-    :`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  const eyeOpen=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  const eyeOff=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+  ['privacy-btn','privacy-btn-mobile'].forEach(id=>{
+    const btn=document.getElementById(id);
+    if(!btn)return;
+    btn.style.color=privacyMode?'var(--accent)':'';
+    btn.innerHTML=privacyMode?eyeOff:eyeOpen;
+  });
   renderAll();
 }
 function pf(n,isLiability=false){
@@ -1175,11 +1252,11 @@ function handleCatChange(selectId,type){
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
-function goPage(page,el){
+function goPage(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab,.bnav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
-  el.classList.add('active');
+  document.querySelectorAll('[data-page="'+page+'"]').forEach(t=>t.classList.add('active'));
   if(page==='dashboard')   renderDashboard();
   if(page==='transactions'){fillDropdowns();renderTxPage();}
   if(page==='reports')     renderBreakdown();
