@@ -183,12 +183,15 @@
     .wt-opt.active{border-color:rgba(201,167,78,.5);color:var(--accent);background:var(--accent-dim);}
 
     /* ── ONBOARDING ───────────────────────────────────── */
-    .onboarding{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+    .onboarding{position:fixed;inset:0;background:var(--bg);background-image:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(201,167,78,.08) 0%,transparent 70%);display:flex;align-items:center;justify-content:center;z-index:200;padding:28px 24px;overflow-y:auto;}
     .onboarding.hidden{display:none;}
-    .ob-card{background:var(--s1);border:1px solid var(--border2);border-radius:24px;padding:36px;width:100%;max-width:420px;text-align:center;box-shadow:var(--shadow-lg);}
-    .ob-icon{font-size:44px;margin-bottom:16px;}
-    .ob-title{font-size:22px;font-weight:700;margin-bottom:8px;letter-spacing:-.03em;}
-    .ob-sub{font-size:13px;color:var(--text2);margin-bottom:28px;line-height:1.6;}
+    .ob-inner{width:100%;max-width:390px;}
+    .ob-brand{font-size:13px;font-weight:700;letter-spacing:-.02em;color:var(--text);margin-bottom:48px;}
+    .ob-brand span{color:var(--accent);}
+    .ob-headline{font-size:36px;font-weight:800;letter-spacing:-.04em;line-height:1.1;color:var(--text);margin-bottom:14px;}
+    .ob-sub{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:36px;max-width:300px;}
+    .ob-divider{height:1px;background:var(--border);margin-bottom:28px;}
+    .ob-form-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:20px;}
 
     /* ── SEARCH / FILTER ──────────────────────────────── */
     .search-wrap{position:relative;margin-bottom:14px;}
@@ -341,7 +344,7 @@
       .modal{border-radius:20px 20px 0 0;max-height:92vh;max-width:100%;}
       .modal-body{padding:18px 20px calc(28px + env(safe-area-inset-bottom));}
       .modal-header{padding:20px 20px 0;}
-      .ob-card{padding:28px 20px;}
+      .ob-inner{padding:0;}
 
       /* charts */
       .chart-wrap{height:180px;}
@@ -383,49 +386,49 @@
 
 <!-- ONBOARDING -->
 <div class="onboarding" id="onboarding">
-  <div class="ob-card">
-    <div class="ob-icon">💰</div>
-    <div class="ob-title">Welcome to Vault</div>
-    <div class="ob-sub">Set up your first wallet to begin.</div>
-    <div style="text-align:left">
-      <div class="form-group">
-        <label class="form-label">Wallet Type</label>
-        <div class="wallet-type-grid">
-          <button class="wt-opt active" onclick="pickObType('bank',this)"><span class="wt-icon">🏦</span>Bank</button>
-          <button class="wt-opt" onclick="pickObType('e-wallet',this)"><span class="wt-icon">📱</span>E-Wallet</button>
-          <button class="wt-opt" onclick="pickObType('cash',this)"><span class="wt-icon">💵</span>Cash</button>
-          <button class="wt-opt" onclick="pickObType('credit',this)"><span class="wt-icon">💳</span>Credit</button>
-        </div>
+  <div class="ob-inner">
+    <div class="ob-brand"><span>V</span>ault</div>
+    <div class="ob-headline">Every peso.<br>Accounted for.</div>
+    <div class="ob-sub">Private, offline-first finance. No accounts, no sync — your data lives here and nowhere else.</div>
+    <div class="ob-divider"></div>
+    <div class="ob-form-label">Add your first account</div>
+    <div class="form-group">
+      <label class="form-label">Account Type</label>
+      <div class="wallet-type-grid">
+        <button class="wt-opt active" onclick="pickObType('bank',this)"><span class="wt-icon">🏦</span>Bank</button>
+        <button class="wt-opt" onclick="pickObType('e-wallet',this)"><span class="wt-icon">📱</span>E-Wallet</button>
+        <button class="wt-opt" onclick="pickObType('cash',this)"><span class="wt-icon">💵</span>Cash</button>
+        <button class="wt-opt" onclick="pickObType('credit',this)"><span class="wt-icon">💳</span>Credit</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">Name</label>
-        <input class="form-input" id="ob-name" placeholder="e.g. BDO, GCash, Wallet" />
-      </div>
-      <div id="ob-regular-fields">
-        <div class="form-group">
-          <label class="form-label">Current Balance (₱)</label>
-          <input type="number" class="form-input" id="ob-balance" placeholder="0.00" min="0" step="0.01" />
-        </div>
-      </div>
-      <div id="ob-credit-fields" style="display:none">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Credit Limit (₱)</label>
-            <input type="number" class="form-input" id="ob-limit" placeholder="50000" min="0" step="1" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Current Outstanding (₱)</label>
-            <input type="number" class="form-input" id="ob-outstanding" placeholder="0.00" min="0" step="0.01" />
-          </div>
-        </div>
-        <div class="form-row-3">
-          <div class="form-group"><label class="form-label">Cutoff Day</label><input type="number" class="form-input" id="ob-cutoff" placeholder="e.g. 25" min="1" max="31" /></div>
-          <div class="form-group"><label class="form-label">Statement Day</label><input type="number" class="form-input" id="ob-statement" placeholder="e.g. 1" min="1" max="31" /></div>
-          <div class="form-group"><label class="form-label">Due Day</label><input type="number" class="form-input" id="ob-dueday" placeholder="e.g. 20" min="1" max="31" /></div>
-        </div>
-      </div>
-      <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="finishOnboarding()">Get Started →</button>
     </div>
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input class="form-input" id="ob-name" placeholder="e.g. BDO, GCash, Cash on hand" />
+    </div>
+    <div id="ob-regular-fields">
+      <div class="form-group">
+        <label class="form-label">Current Balance (₱)</label>
+        <input type="number" class="form-input" id="ob-balance" placeholder="0.00" min="0" step="0.01" />
+      </div>
+    </div>
+    <div id="ob-credit-fields" style="display:none">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Credit Limit (₱)</label>
+          <input type="number" class="form-input" id="ob-limit" placeholder="50000" min="0" step="1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Current Outstanding (₱)</label>
+          <input type="number" class="form-input" id="ob-outstanding" placeholder="0.00" min="0" step="0.01" />
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label class="form-label">Cutoff Day</label><input type="number" class="form-input" id="ob-cutoff" placeholder="25" min="1" max="31" /></div>
+        <div class="form-group"><label class="form-label">Statement Day</label><input type="number" class="form-input" id="ob-statement" placeholder="1" min="1" max="31" /></div>
+        <div class="form-group"><label class="form-label">Due Day</label><input type="number" class="form-input" id="ob-dueday" placeholder="20" min="1" max="31" /></div>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px;padding:13px 16px;font-size:13.5px" onclick="finishOnboarding()">Get Started →</button>
   </div>
 </div>
 
