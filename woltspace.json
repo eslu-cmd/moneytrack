@@ -1,0 +1,7 @@
+{
+  "name": "vault",
+  "description": "Personal finance tracker — Vault",
+  "stack": "html",
+  "keeper": "evo",
+  "public": false
+}

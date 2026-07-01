@@ -1512,14 +1512,32 @@ function monthEndStr(y,m){return ymd(new Date(y,m+1,0));}
 // Wallet math and the tx list keep the raw transaction (bank actually charged full amount).
 function expandTxForAnalytics(t){
   if(!t.installmentMonths||t.installmentMonths<=0)return[t];
-  const out=[],start=new Date(t.date),monthly=t.amount/t.installmentMonths;
+  const out=[],monthly=t.amount/t.installmentMonths;
+  const[_ty,_tm,_td]=t.date.split('-').map(Number);
   for(let i=0;i<t.installmentMonths;i++){
-    const d=new Date(start.getFullYear(),start.getMonth()+i,start.getDate());
+    const d=new Date(_ty,_tm-1+i,_td);
     out.push({...t,date:ymd(d),amount:monthly,_installmentSlice:i+1});
   }
   return out;
 }
 function analyticsTxs(){return db.transactions.flatMap(expandTxForAnalytics);}
+
+// Net worth at any historical date — uses raw (non-prorated) transactions for true balance sheet
+function netWorthAt(dateStr){
+  return db.wallets.reduce((sum,w)=>{
+    let b=w.balance;
+    for(const t of db.transactions){
+      if(t.date>dateStr)continue;
+      if(t.type==='income'&&t.toWallet===w.id)b+=t.amount;
+      if(t.type==='expense'&&t.fromWallet===w.id)b-=t.amount;
+      if(t.type==='transfer'){
+        if(t.fromWallet===w.id)b-=(t.amount+(t.fee||0));
+        if(t.toWallet===w.id)b+=t.amount;
+      }
+    }
+    return sum+b;
+  },0);
+}
 
 // Credit-card billing cycle: find the next unpaid due date and its cutoff.
 function ccNextCycle(w,now){
@@ -1562,8 +1580,7 @@ function reminderPaidThisMonth(r,mStartStr){
   return db.transactions.some(t=>
     t.type==='expense'&&t.date>=mStartStr&&(
       (t.description||'').toLowerCase().includes(q)||
-      (t.vendor||'').toLowerCase().includes(q)||
-      (t.category||'').toLowerCase().includes(q)
+      (t.vendor||'').toLowerCase().includes(q)
     )
   );
 }
@@ -1603,17 +1620,25 @@ function upcomingDues(){
 
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 function renderDashboard(){
-  const now=new Date(),mStartStr=monthStartStr(now.getFullYear(),now.getMonth());
+  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+  const mStartStr=monthStartStr(y,m);
   const mTx=analyticsTxs().filter(t=>t.date>=mStartStr);
   const inc=mTx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
   const exp=mTx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
   const totBal=db.wallets.reduce((s,w)=>s+walletBal(w.id),0);
+  const totalAssets=db.wallets.reduce((s,w)=>s+Math.max(0,walletBal(w.id)),0);
+  const totalLiab=db.wallets.filter(w=>w.type==='credit').reduce((s,w)=>s+Math.max(0,-walletBal(w.id)),0);
+  const prevMEndStr=ymd(new Date(y,m,0));
+  const prevNetWorth=db.transactions.length?netWorthAt(prevMEndStr):totBal;
+  const nwDelta=totBal-prevNetWorth;
   const streak=computeStreak();
   const savingsRate=inc>0?Math.round((inc-exp)/inc*100):null;
+  const deltaHtml=nwDelta!==0?`<span style="font-size:10px;color:${nwDelta>0?'var(--green)':'var(--red)'}">${nwDelta>0?'▲':'▼'} ${pf(Math.abs(nwDelta))} vs last mo</span>`:'';
+  const liabHtml=totalLiab>0?`<div style="font-size:10px;color:var(--text3);margin-top:3px">Assets ${pf(totalAssets)} · Debt ${pf(totalLiab,true)}</div>`:`<div class="stat-sub">${db.wallets.length} wallet${db.wallets.length!==1?'s':''}</div>`;
   document.getElementById('dash-stats').innerHTML=`
-    <div class="stat-card"><div class="stat-label">Net Worth</div><div class="stat-value ${totBal>=0?'green':'red'}">${pf(totBal)}</div><div class="stat-sub">${db.wallets.length} wallet${db.wallets.length!==1?'s':''}</div></div>
+    <div class="stat-card"><div class="stat-label">Net Worth</div><div class="stat-value ${totBal>=0?'green':'red'}">${pf(totBal)}</div>${deltaHtml?`<div class="stat-sub" style="margin-top:4px">${deltaHtml}</div>`:''}${liabHtml}</div>
     <div class="stat-card"><div class="stat-label">Income this month</div><div class="stat-value green">${pf(inc)}</div></div>
-    <div class="stat-card"><div class="stat-label">Expenses this month</div><div class="stat-value red">${pf(exp,true)}</div></div>
+    <div class="stat-card"><div class="stat-label">Expenses this month</div><div class="stat-value red">${pf(exp)}</div></div>
     <div class="stat-card"><div class="stat-label">Net this month</div><div class="stat-value ${inc-exp>=0?'green':'red'}">${pf(inc-exp)}</div>${savingsRate!==null?`<div class="stat-sub">${savingsRate}% savings rate</div>`:''}
     </div>
   `;
@@ -1672,18 +1697,25 @@ function getActiveInstallments(walletId){
 
 function walletCard(w){
   const b=walletBal(w.id);
+  const now=new Date(),wy=now.getFullYear(),wm=now.getMonth();
+  const wMStartStr=monthStartStr(wy,wm);
+  const wDaysPassed=Math.max(1,now.getDate());
+  const wDaysInMonth=new Date(wy,wm+1,0).getDate();
+  const wDaysLeft=wDaysInMonth-wDaysPassed;
+
   if(w.type==='credit'){
     const out=Math.max(0,-b);
-    const avail=(w.creditLimit||0)-out;
+    // overpayment: if b>0 (credit balance), available = limit + overpayment
+    const avail=(w.creditLimit||0)-out+Math.max(0,b);
     const utilPct=w.creditLimit>0?Math.min(100,Math.round(out/w.creditLimit*100)):0;
     const barCls=utilPct>=90?'over':utilPct>=70?'warn':'ok';
-    // billing cycle display
+    const stmt=statementBalance(w);
+    const stmtHtml=stmt>0&&Math.abs(stmt-out)>1?`<div style="font-size:11px;color:var(--amber);margin-top:5px;font-weight:500">📋 Statement due: ${pf(stmt)}</div>`:'';
     const cycleStr=[
       w.cutoffDay  ?`Cutoff ${ordinal(w.cutoffDay)}`  :null,
       w.statementDay?`Statement ${ordinal(w.statementDay)}`:null,
       w.dueDate    ?`Due ${ordinal(w.dueDate)}`       :null,
     ].filter(Boolean).join(' · ');
-    // active installments
     const activeInst=getActiveInstallments(w.id);
     const instHtml=activeInst.length?`
       <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
@@ -1699,6 +1731,7 @@ function walletCard(w){
       <div class="wallet-type-badge">credit card</div>
       <div class="wallet-name">${w.name}</div>
       <div class="wallet-balance neg">${pf(out,true)} <span style="font-size:12px;font-weight:400;color:var(--text2)">outstanding</span></div>
+      ${stmtHtml}
       <div class="credit-detail">
         <span><b>${pf(avail)}</b>available</span>
         <span><b>₱${fmt(w.creditLimit||0)}</b>limit</span>
@@ -1713,11 +1746,23 @@ function walletCard(w){
       </div>
     </div>`;
   }
+  // Cash flow projection for non-credit wallets
+  let cashFlowHtml='';
+  if(b>0&&wDaysLeft>0){
+    const wExp=analyticsTxs().filter(t=>t.type==='expense'&&t.fromWallet===w.id&&t.date>=wMStartStr).reduce((s,t)=>s+t.amount,0);
+    const dailyBurn=wExp/wDaysPassed;
+    if(dailyBurn>=50){
+      const projected=b-dailyBurn*wDaysLeft;
+      const projColor=projected<0?'var(--red)':projected<b*0.2?'var(--amber)':'var(--text2)';
+      cashFlowHtml=`<div style="font-size:10.5px;color:${projColor};margin-top:6px">~${pf(projected)} at month-end <span style="color:var(--text3)">· ₱${fmt(Math.round(dailyBurn))}/day</span></div>`;
+    }
+  }
   return`<div class="wallet-card type-${w.type}">
     <button class="wallet-menu-btn" onclick="toggleWalletMenu('wm-${w.id}',this)" title="Options">⋯</button>
     <div class="wallet-type-badge">${w.type}</div>
     <div class="wallet-name">${w.name}</div>
     <div class="wallet-balance ${b<0?'neg':'pos'}">${pf(b)}</div>
+    ${cashFlowHtml}
     <div class="wallet-actions" id="wm-${w.id}">
       <button class="btn btn-ghost btn-sm" onclick="openAdjust('${w.id}')">Adjust</button>
       <button class="btn btn-sm btn-danger" onclick="deleteWallet('${w.id}')">Delete</button>
@@ -1731,6 +1776,35 @@ function goalCard(g){
   const barCls=pct>=100?'ok':pct>=60?'blue':'purple';
   const wallet=g.walletId?db.wallets.find(w=>w.id===g.walletId):null;
   const sub=[wallet?wallet.name:'',g.targetDate?`by ${g.targetDate}`:''].filter(Boolean).join(' · ');
+  // Goal pace: 3-month avg net contribution to linked wallet
+  let paceHtml='';
+  if(g.walletId&&pct<100){
+    const gNow=new Date(),gy=gNow.getFullYear(),gm=gNow.getMonth();
+    const gaTx=analyticsTxs();
+    const netContribs=[1,2,3].map(off=>{
+      const s=new Date(gy,gm-off,1),e=new Date(gy,gm-off+1,0);
+      const sS=ymd(s),eS=ymd(e);
+      const tx=gaTx.filter(t=>t.date>=sS&&t.date<=eS);
+      return tx.filter(t=>t.toWallet===g.walletId).reduce((a,t)=>a+t.amount,0)
+            -tx.filter(t=>t.fromWallet===g.walletId).reduce((a,t)=>a+t.amount,0);
+    });
+    const avgNet=netContribs.reduce((a,v)=>a+v,0)/3;
+    const remaining=g.targetAmount-cur;
+    if(avgNet>0){
+      const moLeft=Math.ceil(remaining/avgNet);
+      let trackHtml='';
+      if(g.targetDate){
+        const td=new Date(g.targetDate);
+        const moAvail=Math.max(0,(td-gNow)/(30*864e5));
+        trackHtml=moLeft<=moAvail
+          ?`<span style="color:var(--green);font-weight:600">✓ On track</span> · `
+          :`<span style="color:var(--amber);font-weight:600">⚠ Behind</span> · `;
+      }
+      paceHtml=`<div style="font-size:11px;color:var(--text2);margin-top:5px">${trackHtml}~${moLeft} mo at current pace</div>`;
+    }else if(netContribs.some(v=>v!==0)&&avgNet<=0){
+      paceHtml=`<div style="font-size:11px;color:var(--red);margin-top:5px">⚠ Net outflow — goal is receding</div>`;
+    }
+  }
   return`<div class="goal-card">
     <div class="goal-name">${g.name}</div>
     <div class="goal-sub">${sub||'No linked wallet'}</div>
@@ -1740,6 +1814,7 @@ function goalCard(g){
       <span>${pct}% complete</span>
       ${pct<100?`<span>₱${fmt(g.targetAmount-cur)} to go</span>`:'<span style="color:var(--green)">✓ Reached!</span>'}
     </div>
+    ${paceHtml}
     <div style="display:flex;gap:6px;margin-top:10px">
       <button class="btn btn-ghost btn-sm" style="flex:1" onclick="editGoal('${g.id}')">Edit</button>
       <button class="btn btn-sm btn-danger" onclick="deleteGoal('${g.id}')">✕</button>
@@ -1994,7 +2069,20 @@ function renderInsights(){
   const mStartStr=monthStartStr(y,m);
   const todayD=now.getDate(),daysInMonth=new Date(y,m+1,0).getDate();
   const aTx=analyticsTxs();
-  // Savings rate — last 6 months
+
+  // ── Net worth trend (6 months) ──
+  const nwBars=[];
+  for(let i=5;i>=0;i--){
+    const endOfMon=ymd(new Date(y,m-i+1,0));
+    const label=new Date(y,m-i,1).toLocaleDateString('en-PH',{month:'short'});
+    nwBars.push({label,val:netWorthAt(endOfMon)});
+  }
+  const nwMax=Math.max(...nwBars.map(b=>Math.abs(b.val)),1);
+  const nwMin=Math.min(...nwBars.map(b=>b.val));
+  const nwFirst=nwBars[0].val,nwLast=nwBars[nwBars.length-1].val;
+  const nwTrend=nwLast-nwFirst;
+
+  // ── Savings rate — last 6 months ──
   const srBars=[];
   for(let i=5;i>=0;i--){
     const s=new Date(y,m-i,1),e=new Date(y,m-i+1,0);
@@ -2005,7 +2093,8 @@ function renderInsights(){
     srBars.push({label:s.toLocaleDateString('en-PH',{month:'short'}),inc,exp,rate:inc>0?Math.round((inc-exp)/inc*100):null});
   }
   const maxAmt=Math.max(...srBars.map(b=>Math.max(b.inc,b.exp)),1);
-  // Spending velocity
+
+  // ── Spending velocity ──
   const spentSoFar=aTx.filter(t=>t.type==='expense'&&t.date>=mStartStr).reduce((a,t)=>a+t.amount,0);
   const totalBudget=db.budgets.filter(b=>b.period==='monthly').reduce((a,b)=>a+b.amount,0);
   const daysPassed=Math.max(1,todayD);
@@ -2013,12 +2102,26 @@ function renderInsights(){
   const projectedMonth=Math.round(dailyBurn*daysInMonth);
   const timePct=Math.round(daysPassed/daysInMonth*100);
   const spendPct=totalBudget>0?Math.round(spentSoFar/totalBudget*100):null;
-  // Vendor leaderboard
+
+  // ── Spending concentration ──
+  const expByCat={};
+  aTx.filter(t=>t.type==='expense'&&t.date>=mStartStr).forEach(t=>{if(t.category)expByCat[t.category]=(expByCat[t.category]||0)+t.amount;});
+  const totalMExp=Object.values(expByCat).reduce((a,v)=>a+v,0);
+  const expCatEntries=Object.entries(expByCat).sort((a,b)=>b[1]-a[1]);
+  const incByCat={};
+  aTx.filter(t=>t.type==='income'&&t.date>=mStartStr).forEach(t=>{if(t.category)incByCat[t.category]=(incByCat[t.category]||0)+t.amount;});
+  const totalMInc=Object.values(incByCat).reduce((a,v)=>a+v,0);
+  const incCatEntries=Object.entries(incByCat).sort((a,b)=>b[1]-a[1]);
+  const topExpPct=totalMExp>0&&expCatEntries[0]?Math.round(expCatEntries[0][1]/totalMExp*100):0;
+  const incConcentration=incCatEntries.length===1?100:incCatEntries.length>0?Math.round(incCatEntries[0][1]/totalMInc*100):0;
+
+  // ── Vendor leaderboard ──
   const vendorMap={};
   aTx.filter(t=>t.type==='expense'&&t.date>=mStartStr&&t.vendor).forEach(t=>{vendorMap[t.vendor]=(vendorMap[t.vendor]||0)+t.amount;});
   const topVendors=Object.entries(vendorMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const maxV=topVendors[0]?.[1]||1;
-  // Anomalies — categories >40% above 3-month average, min ₱500
+
+  // ── Anomalies — categories >40% above 3-month avg, min ₱500 ──
   const anomalies=[];
   [...EXP_CATS,...(db.expCats||[])].forEach(cat=>{
     const thisMonth=aTx.filter(t=>t.type==='expense'&&t.category===cat&&t.date>=mStartStr).reduce((a,t)=>a+t.amount,0);
@@ -2027,10 +2130,14 @@ function renderInsights(){
     if(avg>0&&thisMonth>avg*1.4)anomalies.push({cat,thisMonth,avg,ratio:Math.round(thisMonth/avg*100)});
   });
   anomalies.sort((a,b)=>b.ratio-a.ratio);
-  // Streak
+
+  // ── Streak ──
   const streak=computeStreak();
+
   document.getElementById('rt-insights').innerHTML=`
     <div style="display:flex;flex-direction:column;gap:14px">
+
+      <!-- Streak -->
       <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:${streak>=7?'rgba(251,191,36,.08)':'var(--s1)'};border:1px solid ${streak>=7?'rgba(251,191,36,.25)':'var(--border)'};border-radius:var(--r)">
         <span style="font-size:26px">${streak>=7?'🔥':streak>=3?'⚡':'📝'}</span>
         <div>
@@ -2038,6 +2145,30 @@ function renderInsights(){
           <div style="font-size:11px;color:var(--text2);margin-top:2px">${streak===0?'Log your first transaction below':streak<3?'Keep going — the habit starts here':streak>=14?'Two weeks strong. Impressive.':'Great consistency so far.'}</div>
         </div>
       </div>
+
+      <!-- Net Worth Trend -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+          <div class="section-title">Net Worth — Last 6 Months</div>
+          <div style="font-size:11px;font-weight:600;color:${nwTrend>=0?'var(--green)':'var(--red)'}">${nwTrend>=0?'▲':'▼'} ₱${fmt(Math.abs(nwTrend))}</div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:5px;height:80px;margin-bottom:8px">
+          ${nwBars.map((b,i)=>{
+            const h=Math.max(4,Math.round(Math.abs(b.val)/nwMax*68));
+            const isPos=b.val>=0;
+            const isLast=i===nwBars.length-1;
+            return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+              <div style="flex:1;display:flex;align-items:flex-end;width:100%">
+                <div style="width:100%;height:${h}px;background:${isPos?'var(--green)':'var(--red)'};border-radius:3px 3px 0 0;opacity:${isLast?'1':'.5'};transition:opacity .2s"></div>
+              </div>
+              <div style="font-size:8.5px;color:var(--text3)">${b.label}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="font-size:10px;color:var(--text2)">Net worth at end of each month · ${nwMin<0?'<span style="color:var(--red)">negative months in red</span>':'all positive ✓'}</div>
+      </div>
+
+      <!-- Savings Rate -->
       <div class="card">
         <div class="section-title mb-12">Savings Rate — Last 6 Months</div>
         <div style="display:flex;align-items:flex-end;gap:5px;height:90px;margin-bottom:8px">
@@ -2049,6 +2180,8 @@ function renderInsights(){
           <span style="color:var(--text3);margin-left:auto">% = (income−expenses) / income</span>
         </div>
       </div>
+
+      <!-- Spending Velocity -->
       <div class="card">
         <div class="section-title mb-12">Spending Velocity — This Month</div>
         <div style="display:flex;justify-content:space-between;margin-bottom:10px">
@@ -2059,14 +2192,55 @@ function renderInsights(){
         <div style="font-size:10px;color:var(--text3);margin-bottom:${spendPct!==null?'12px':'0'}"> ${timePct}% through the month · projected month-end: <b>₱${fmt(projectedMonth)}</b></div>
         ${spendPct!==null?`<div style="height:6px;background:var(--s2);border-radius:3px;margin-bottom:4px;overflow:hidden"><div class="bar-fill ${spendPct>=100?'over':spendPct>=80?'warn':'ok'}" style="width:${Math.min(spendPct,100)}%"></div></div><div style="font-size:10px;color:var(--text2)">${spendPct}% of monthly budget used</div>`:'<div style="font-size:12px;color:var(--text3)">Set budgets to see pace tracking</div>'}
       </div>
+
+      <!-- Concentration Analysis -->
+      <div class="card">
+        <div class="section-title mb-12">Spending Concentration — This Month</div>
+        ${expCatEntries.length===0?'<div class="empty"><div class="empty-icon">📊</div>No expenses logged this month.</div>':
+          `${topExpPct>=50?`<div style="padding:8px 12px;background:rgba(217,79,79,.08);border:1px solid rgba(217,79,79,.2);border-radius:8px;font-size:12px;color:var(--red);margin-bottom:12px">⚠ ${expCatEntries[0][0]} is ${topExpPct}% of all spending — high concentration</div>`:''}
+          ${expCatEntries.slice(0,6).map(([cat,amt])=>{
+            const pct=totalMExp>0?Math.round(amt/totalMExp*100):0;
+            const barW=pct;
+            return`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:16px;flex-shrink:0">${CAT_ICONS[cat]||'📌'}</span>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                  <span style="font-size:12px;font-weight:500">${cat}</span>
+                  <span style="font-size:11px;color:var(--text2);font-variant-numeric:tabular-nums">${pct}% · ₱${fmt(amt)}</span>
+                </div>
+                <div style="height:4px;background:var(--s2);border-radius:2px"><div style="height:100%;border-radius:2px;background:${pct>=40?'var(--red)':pct>=25?'var(--amber)':'var(--accent)'};width:${barW}%"></div></div>
+              </div>
+            </div>`;
+          }).join('')}
+          ${expCatEntries.length>0?`<div style="margin-top:8px;font-size:11px;color:var(--text2)">Total expenses this month: ₱${fmt(totalMExp)}</div>`:''}`
+        }
+        ${incCatEntries.length>0?`
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+            <div style="font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Income Sources</div>
+            ${incConcentration===100?`<div style="font-size:12px;color:var(--amber);padding:8px 12px;background:rgba(196,154,58,.06);border:1px solid rgba(196,154,58,.15);border-radius:8px;margin-bottom:10px">⚠ 100% of income from ${incCatEntries[0][0]} — single source dependency</div>`:''}
+            ${incCatEntries.map(([cat,amt])=>{
+              const pct=totalMInc>0?Math.round(amt/totalMInc*100):0;
+              return`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
+                <span style="font-size:14px">${CAT_ICONS[cat]||'💰'}</span>
+                <div style="flex:1"><div style="display:flex;justify-content:space-between"><span style="font-size:12px">${cat}</span><span style="font-size:11px;color:var(--green)">₱${fmt(amt)}</span></div></div>
+                <span style="font-size:11px;color:var(--text3);min-width:28px;text-align:right">${pct}%</span>
+              </div>`;
+            }).join('')}
+          </div>`:''}
+      </div>
+
+      <!-- Vendor Leaderboard -->
       <div class="card">
         <div class="section-title mb-12">Top Vendors This Month</div>
         ${topVendors.length?topVendors.map(([v,a],i)=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:10px;color:var(--text3);width:16px;flex-shrink:0">${i+1}</span><span style="flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v}</span><div style="width:70px;height:4px;background:var(--s2);border-radius:2px;flex-shrink:0"><div style="height:100%;border-radius:2px;background:var(--accent);width:${Math.round(a/maxV*100)}%"></div></div><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;min-width:70px;text-align:right">₱${fmt(a)}</span></div>`).join(''):'<div class="empty"><div class="empty-icon">🏪</div>Add vendors when logging transactions to see your leaderboard.</div>'}
       </div>
+
+      <!-- Anomaly Detection -->
       <div class="card">
         <div class="section-title mb-12">Unusual Spending This Month</div>
         ${anomalies.length?anomalies.map(a=>`<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border)"><span style="font-size:20px">${CAT_ICONS[a.cat]||'📌'}</span><div style="flex:1"><div style="font-size:13px;font-weight:500">${a.cat}</div><div style="font-size:11px;color:var(--text2);margin-top:2px">3-mo avg ₱${fmt(Math.round(a.avg))} → this month ₱${fmt(a.thisMonth)}</div></div><span style="font-size:13px;font-weight:700;color:var(--red);flex-shrink:0">+${a.ratio-100}%</span></div>`).join(''):'<div class="empty"><div class="empty-icon">✅</div>No unusual spending detected. Solid month.</div>'}
       </div>
+
     </div>`;
 }
 
