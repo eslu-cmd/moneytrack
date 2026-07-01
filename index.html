@@ -168,12 +168,13 @@
     .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
 
     /* ── TYPE TABS ────────────────────────────────────── */
-    .type-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:20px;background:var(--s3);border-radius:14px;padding:4px;border:1px solid var(--border);}
-    .type-tab{padding:10px 8px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--text3);cursor:pointer;font-size:12.5px;font-weight:600;transition:all .15s;letter-spacing:.01em;font-family:inherit;}
-    .type-tab:hover{color:var(--text2);}
+    .type-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:20px;background:var(--s3);border-radius:14px;padding:4px;border:1px solid var(--border);}
+    .type-tab{padding:9px 6px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--text2);cursor:pointer;font-size:11.5px;font-weight:600;transition:all .15s;letter-spacing:.01em;font-family:inherit;}
+    .type-tab:hover{color:var(--text);}
     .type-tab.active.expense{border-color:rgba(251,113,133,.3);color:var(--red);background:var(--red-dim);}
     .type-tab.active.income{border-color:rgba(16,185,129,.3);color:var(--green);background:var(--green-dim);}
     .type-tab.active.transfer{border-color:rgba(201,167,78,.3);color:var(--accent);background:var(--accent-dim);}
+    .type-tab.active.withdrawal{border-color:rgba(56,189,248,.3);color:var(--blue);background:var(--blue-dim);}
 
     /* ── WALLET TYPE OPTS ─────────────────────────────── */
     .wallet-type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px;}
@@ -688,6 +689,7 @@
         <button class="type-tab active expense" onclick="setTxType('expense',this)">− Expense</button>
         <button class="type-tab income" onclick="setTxType('income',this)">+ Income</button>
         <button class="type-tab transfer" onclick="setTxType('transfer',this)">⇄ Transfer</button>
+        <button class="type-tab withdrawal" onclick="setTxType('withdrawal',this)">↓ Withdraw</button>
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Amount (₱)</label><input type="number" class="form-input" id="tx-amount" placeholder="0.00" min="0" step="0.01" oninput="updateInstallmentPreview()" /></div>
@@ -752,7 +754,22 @@
           <input type="hidden" id="tx-w-to" />
           <div class="wallet-pill-row" id="wallet-pills-to"></div>
         </div>
-        <div class="form-group"><label class="form-label">Transfer / Convenience Fee ₱ (optional)</label><input type="number" class="form-input" id="tx-fee" placeholder="0.00" min="0" step="0.01" /></div>
+        <div class="form-group"><label class="form-label">Transfer Fee ₱ <span style="color:var(--text3);font-weight:400">(optional — logged as expense)</span></label><input type="number" class="form-input" id="tx-fee" placeholder="0.00" min="0" step="0.01" /></div>
+      </div>
+
+      <!-- WITHDRAWAL FIELDS -->
+      <div id="fields-withdrawal" style="display:none">
+        <div class="form-group">
+          <label class="form-label">From Account</label>
+          <input type="hidden" id="tx-w-wd-from" />
+          <div class="wallet-pill-row" id="wallet-pills-wd-from"></div>
+        </div>
+        <input type="hidden" id="tx-w-wd-to" />
+        <div id="wd-cash-info" style="margin-bottom:14px"></div>
+        <div class="form-group">
+          <label class="form-label">ATM Fee ₱ <span style="color:var(--text3);font-weight:400">(optional — logged as expense)</span></label>
+          <input type="number" class="form-input" id="tx-atm-fee" placeholder="0.00" min="0" step="0.01" />
+        </div>
       </div>
 
       <!-- FREQUENCY + VENDOR -->
@@ -1104,11 +1121,11 @@ function walletBal(id){
   if(!w)return 0;
   let b=w.balance;
   for(const t of db.transactions){
-    if(t.type==='income'   &&t.toWallet===id)  b+=t.amount;
-    if(t.type==='expense'  &&t.fromWallet===id) b-=t.amount;
-    if(t.type==='transfer'){
-      if(t.fromWallet===id)b-=(t.amount+(t.fee||0));
-      if(t.toWallet===id)  b+=t.amount;
+    if(t.type==='income'&&t.toWallet===id)b+=t.amount;
+    if(t.type==='expense'&&t.fromWallet===id)b-=t.amount;
+    if(t.type==='transfer'||t.type==='withdrawal'){
+      if(t.fromWallet===id)b-=t.feeSiblingId?t.amount:(t.amount+(t.fee||0));
+      if(t.toWallet===id)b+=t.amount;
     }
   }
   return b;
@@ -1195,9 +1212,27 @@ function setTxType(type,el){
   txType=type;
   document.querySelectorAll('.type-tab').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('fields-expense').style.display =type==='expense' ?'':'none';
-  document.getElementById('fields-income').style.display  =type==='income'  ?'':'none';
-  document.getElementById('fields-transfer').style.display=type==='transfer'?'':'none';
+  document.getElementById('fields-expense').style.display   =type==='expense'   ?'':'none';
+  document.getElementById('fields-income').style.display    =type==='income'    ?'':'none';
+  document.getElementById('fields-transfer').style.display  =type==='transfer'  ?'':'none';
+  document.getElementById('fields-withdrawal').style.display=type==='withdrawal'?'':'none';
+  if(type==='withdrawal')refreshWdCashTarget();
+}
+function refreshWdCashTarget(){
+  const cashWallets=db.wallets.filter(w=>w.type==='cash');
+  const info=document.getElementById('wd-cash-info');
+  if(!info)return;
+  if(cashWallets.length===0){
+    info.innerHTML=`<div style="font-size:12px;color:var(--amber);padding:10px 12px;background:var(--amber-dim);border:1px solid rgba(245,158,11,.2);border-radius:10px">No cash wallet found — add one to use withdrawals.</div>`;
+    document.getElementById('tx-w-wd-to').value='';
+  }else if(cashWallets.length===1){
+    document.getElementById('tx-w-wd-to').value=cashWallets[0].id;
+    info.innerHTML=`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);margin-bottom:6px">Cash Destination</div><div style="font-size:13px;color:var(--text2);padding:8px 0 4px">→ ${cashWallets[0].name}</div>`;
+  }else{
+    info.innerHTML=`<div class="form-group"><label class="form-label">To Cash Wallet</label><div class="wallet-pill-row" id="wallet-pills-wd-to"></div></div>`;
+    const cur=document.getElementById('tx-w-wd-to').value||'';
+    document.getElementById('wallet-pills-wd-to').innerHTML=cashWallets.map(w=>`<button class="wallet-pill${w.id===cur?' active':''}" data-wid="${w.id}" onclick="pickWallet(this,'wallet-pills-wd-to','tx-w-wd-to',false)">${W_ICONS[w.type]} ${w.name}</button>`).join('');
+  }
 }
 function saveTx(){
   const amount=parseFloat(document.getElementById('tx-amount').value);
@@ -1220,13 +1255,24 @@ function saveTx(){
     tx.toWallet=document.getElementById('tx-w-inc').value;
     if(!tx.category){alert('Pick a category.');return;}
     if(!tx.toWallet){alert('Select a wallet.');return;}
-  }else{
+  }else if(txType==='transfer'){
     tx.fromWallet=document.getElementById('tx-w-from').value;
     tx.toWallet  =document.getElementById('tx-w-to').value;
-    tx.fee       =parseFloat(document.getElementById('tx-fee').value)||0;
-    tx.category  ='Transfer';
+    const rawFee =parseFloat(document.getElementById('tx-fee').value)||0;
+    tx.fee=rawFee;tx.category='Transfer';
     if(!tx.fromWallet||!tx.toWallet){alert('Select both wallets.');return;}
     if(tx.fromWallet===tx.toWallet){alert('From and To wallets must differ.');return;}
+    if(editingTxId){const old=db.transactions.find(t=>t.id===editingTxId);if(old?.feeSiblingId)db.transactions=db.transactions.filter(t=>t.id!==old.feeSiblingId);}
+    if(rawFee>0){const feeExp={id:uid(),type:'expense',amount:rawFee,date:tx.date,category:'Transfer Fee',fromWallet:tx.fromWallet,description:'Transfer fee',frequency:'one-time',createdAt:ts()};db.transactions.push(feeExp);tx.feeSiblingId=feeExp.id;}
+  }else if(txType==='withdrawal'){
+    tx.fromWallet=document.getElementById('tx-w-wd-from').value;
+    tx.toWallet  =document.getElementById('tx-w-wd-to').value;
+    const atmFee =parseFloat(document.getElementById('tx-atm-fee').value)||0;
+    tx.fee=atmFee;tx.category='Withdrawal';
+    if(!tx.fromWallet){alert('Select source account.');return;}
+    if(!tx.toWallet){alert('No cash wallet selected.');return;}
+    if(editingTxId){const old=db.transactions.find(t=>t.id===editingTxId);if(old?.feeSiblingId)db.transactions=db.transactions.filter(t=>t.id!==old.feeSiblingId);}
+    if(atmFee>0){const feeExp={id:uid(),type:'expense',amount:atmFee,date:tx.date,category:'Transfer Fee',fromWallet:tx.fromWallet,description:'ATM fee',frequency:'one-time',createdAt:ts()};db.transactions.push(feeExp);tx.feeSiblingId=feeExp.id;}
   }
   if(editingTxId){const idx=db.transactions.findIndex(t=>t.id===editingTxId);if(idx>=0)db.transactions[idx]=tx;}
   else db.transactions.push(tx);
@@ -1235,6 +1281,8 @@ function saveTx(){
 }
 function deleteTx(id){
   if(!confirm('Delete this transaction?'))return;
+  const tx=db.transactions.find(t=>t.id===id);
+  if(tx?.feeSiblingId)db.transactions=db.transactions.filter(t=>t.id!==tx.feeSiblingId);
   db.transactions=db.transactions.filter(t=>t.id!==id);
   save();renderAll();
 }
@@ -1256,10 +1304,14 @@ function editTx(id){
   }else if(t.type==='income'){
     document.getElementById('tx-cat-inc').value=t.category;
     document.getElementById('tx-w-inc').value=t.toWallet;
-  }else{
+  }else if(t.type==='transfer'){
     document.getElementById('tx-w-from').value=t.fromWallet;
     document.getElementById('tx-w-to').value=t.toWallet;
     document.getElementById('tx-fee').value=t.fee||'';
+  }else if(t.type==='withdrawal'){
+    document.getElementById('tx-w-wd-from').value=t.fromWallet;
+    document.getElementById('tx-w-wd-to').value=t.toWallet;
+    document.getElementById('tx-atm-fee').value=t.fee||'';
   }
   openModal('tx');
   // highlight icon state after grids are built
@@ -1276,9 +1328,9 @@ function editTx(id){
 function resetTxForm(){
   editingTxId=null;
   document.getElementById('tx-modal-title').textContent='Add Transaction';
-  ['tx-amount','tx-desc','tx-vendor','tx-fee'].forEach(id=>document.getElementById(id).value='');
+  ['tx-amount','tx-desc','tx-vendor','tx-fee','tx-atm-fee'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   // reset hidden state
-  ['tx-cat-exp','tx-cat-inc','tx-w-exp','tx-w-inc','tx-w-from','tx-w-to'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['tx-cat-exp','tx-cat-inc','tx-w-exp','tx-w-inc','tx-w-from','tx-w-to','tx-w-wd-from','tx-w-wd-to'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   // deselect grids + pills
   ['cat-grid-exp','cat-grid-inc'].forEach(id=>document.getElementById(id)?.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active')));
   ['wallet-pills-exp','wallet-pills-inc','wallet-pills-from','wallet-pills-to'].forEach(id=>document.getElementById(id)?.querySelectorAll('.wallet-pill').forEach(b=>b.classList.remove('active')));
@@ -1523,6 +1575,7 @@ function fillDropdowns(){
   buildWalletPills('wallet-pills-inc','tx-w-inc','setWalletInc',false);
   buildWalletPills('wallet-pills-from','tx-w-from','setWalletFrom',false);
   buildWalletPills('wallet-pills-to','tx-w-to','setWalletTo',false);
+  buildWalletPills('wallet-pills-wd-from','tx-w-wd-from','',false);
   // filter bar — keep as selects
   const usedCats=[...new Set(db.transactions.map(t=>t.category).filter(Boolean))].sort();
   document.getElementById('f-cat').innerHTML='<option value="">All Categories</option>'+usedCats.map(c=>`<option>${c}</option>`).join('');
@@ -1557,8 +1610,8 @@ function netWorthAt(dateStr){
       if(t.date>dateStr)continue;
       if(t.type==='income'&&t.toWallet===w.id)b+=t.amount;
       if(t.type==='expense'&&t.fromWallet===w.id)b-=t.amount;
-      if(t.type==='transfer'){
-        if(t.fromWallet===w.id)b-=(t.amount+(t.fee||0));
+      if(t.type==='transfer'||t.type==='withdrawal'){
+        if(t.fromWallet===w.id)b-=t.feeSiblingId?t.amount:(t.amount+(t.fee||0));
         if(t.toWallet===w.id)b+=t.amount;
       }
     }
@@ -1592,8 +1645,8 @@ function statementBalance(w){
     if(t.date>cutoffStr)continue;
     if(t.type==='income'&&t.toWallet===w.id)b+=t.amount;
     if(t.type==='expense'&&t.fromWallet===w.id)b-=t.amount;
-    if(t.type==='transfer'){
-      if(t.fromWallet===w.id)b-=(t.amount+(t.fee||0));
+    if(t.type==='transfer'||t.type==='withdrawal'){
+      if(t.fromWallet===w.id)b-=t.feeSiblingId?t.amount:(t.amount+(t.fee||0));
       if(t.toWallet===w.id)b+=t.amount;
     }
   }
@@ -1902,17 +1955,18 @@ function humanDate(dateStr){
 function txRow(t,actions){
   const fromW=db.wallets.find(w=>w.id===t.fromWallet);
   const toW  =db.wallets.find(w=>w.id===t.toWallet);
-  const wLabel=t.type==='transfer'?`${fromW?.name||'?'} → ${toW?.name||'?'}`:(fromW||toW)?.name||'—';
+  const wLabel=(t.type==='transfer'||t.type==='withdrawal')?`${fromW?.name||'?'} → ${toW?.name||'?'}`:(fromW||toW)?.name||'—';
   let amtStr;
   if(t.type==='income')     amtStr=`+₱${fmt(t.amount)}`;
   else if(t.type==='expense')amtStr=`−₱${fmt(t.amount)}`;
-  else{amtStr=`⇄ ₱${fmt(t.amount)}`;if(t.fee>0)amtStr+=` <span style="color:var(--text2);font-size:10px">+₱${fmt(t.fee)} fee</span>`;}
+  else if(t.type==='withdrawal'){amtStr=`↓ ₱${fmt(t.amount)}`;}
+  else{amtStr=`⇄ ₱${fmt(t.amount)}`;}
   const vendorStr=t.vendor?` · ${t.vendor}`:'';
   const instStr=t.installmentMonths>0?` · ${t.installmentMonths}mo`:'';
   const freqStr=t.frequency&&t.frequency!=='one-time'?` · ${t.frequency}`:'';
   const meta=[humanDate(t.date),t.category,wLabel+vendorStr+freqStr+instStr].filter(Boolean).join(' · ');
   return`<div class="tx-row">
-    <div class="tx-info"><div class="tx-desc">${t.description||t.category||'—'}</div><div class="tx-meta">${meta}</div></div>
+    <div class="tx-info"><div class="tx-desc">${t.description||(t.type==='withdrawal'?'ATM Withdrawal':t.category)||'—'}</div><div class="tx-meta">${meta}</div></div>
     <div class="tx-amount ${t.type}">${amtStr}</div>
     ${actions?`<div style="display:flex;gap:4px;flex-shrink:0;padding-top:1px"><button class="btn btn-ghost btn-sm" style="padding:4px 8px" onclick="editTx('${t.id}')">✎</button><button class="btn btn-sm btn-danger" style="padding:4px 8px" onclick="deleteTx('${t.id}')">✕</button></div>`:''}
   </div>`;
