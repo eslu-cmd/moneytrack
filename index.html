@@ -13,105 +13,130 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
     :root {
-      --bg: #07070d;
-      --s1: #0d0d17;
-      --s2: #111120;
-      --s3: #161628;
-      --border: #1c1c30;
-      --border2: #242438;
-      --accent: #5b6af5;
-      --accent-dim: rgba(91,106,245,.12);
-      --green: #1aaf74;
-      --green-dim: rgba(26,175,116,.1);
-      --red: #d94f4f;
-      --red-dim: rgba(217,79,79,.1);
-      --amber: #c49a3a;
-      --amber-dim: rgba(196,154,58,.1);
-      --blue: #3b82c4;
-      --blue-dim: rgba(59,130,196,.1);
-      --text: #eeeef8;
-      --text2: #7878a0;
-      --text3: #3c3c58;
-      --r: 12px;
+      --bg: #07070f;
+      --s1: #0d0d1a;
+      --s2: #131321;
+      --s3: #1b1b2e;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.13);
+      --accent: #6c5ef6;
+      --accent-dim: rgba(108,94,246,0.14);
+      --green: #22c55e;
+      --green-dim: rgba(34,197,94,0.1);
+      --red: #f87171;
+      --red-dim: rgba(248,113,113,0.1);
+      --amber: #fbbf24;
+      --amber-dim: rgba(251,191,36,0.1);
+      --blue: #60a5fa;
+      --blue-dim: rgba(96,165,250,0.1);
+      --text: #f0f0f8;
+      --text2: #6b7280;
+      --text3: #374151;
+      --r: 16px;
+      --shadow: 0 1px 3px rgba(0,0,0,.6),0 4px 16px rgba(0,0,0,.3);
+      --shadow-lg: 0 2px 6px rgba(0,0,0,.7),0 10px 40px rgba(0,0,0,.4);
     }
 
     *{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
 
     /* ── NAV ──────────────────────────────────────────── */
-    .nav{display:flex;align-items:center;background:var(--s1);border-bottom:1px solid var(--border);padding:0 24px;height:54px;gap:0;flex-shrink:0;}
-    .nav-brand{font-size:13px;font-weight:600;color:var(--text);letter-spacing:.02em;margin-right:32px;white-space:nowrap;opacity:.9;}
+    .nav{display:flex;align-items:center;background:rgba(7,7,15,.9);border-bottom:1px solid var(--border);padding:0 20px;height:56px;gap:0;flex-shrink:0;backdrop-filter:blur(16px);}
+    .nav-brand{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.02em;margin-right:28px;white-space:nowrap;}
     .nav-brand span{color:var(--accent);}
-    .nav-tab{padding:0 14px;height:54px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:12.5px;font-weight:500;transition:color .15s;white-space:nowrap;position:relative;letter-spacing:.01em;}
-    .nav-tab::after{content:'';position:absolute;bottom:0;left:14px;right:14px;height:2px;background:var(--accent);border-radius:2px 2px 0 0;opacity:0;transition:opacity .15s;}
-    .nav-tab:hover{color:var(--text);}
+    .nav-tab{padding:0 12px;height:56px;border:none;background:transparent;color:var(--text3);cursor:pointer;font-size:12.5px;font-weight:500;transition:color .15s;white-space:nowrap;position:relative;letter-spacing:.01em;font-family:inherit;}
+    .nav-tab::after{content:'';position:absolute;bottom:0;left:12px;right:12px;height:2px;background:var(--accent);border-radius:2px 2px 0 0;opacity:0;transition:opacity .15s;}
+    .nav-tab:hover{color:var(--text2);}
     .nav-tab.active{color:var(--text);}
     .nav-tab.active::after{opacity:1;}
     .nav-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
 
     /* ── LAYOUT ───────────────────────────────────────── */
-    .main{flex:1;overflow-y:auto;padding:24px 28px;}
+    .main{flex:1;overflow-y:auto;padding:20px 20px;}
     .page{display:none;} .page.active{display:block;}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
-    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
     .mb-16{margin-bottom:16px;} .mb-12{margin-bottom:12px;} .mb-8{margin-bottom:8px;}
 
     /* ── CARDS ────────────────────────────────────────── */
-    .card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px;}
-    .wallet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;}
+    .card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);}
+    .wallet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+
+    /* ── BALANCE HERO ─────────────────────────────────── */
+    .balance-hero{background:linear-gradient(135deg,var(--s1) 0%,rgba(108,94,246,.06) 100%);border:1px solid var(--border2);border-radius:22px;padding:26px 22px 20px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;}
+    .balance-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:160px;height:160px;background:radial-gradient(circle,rgba(108,94,246,.14) 0%,transparent 70%);pointer-events:none;}
+    .balance-hero-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:10px;}
+    .balance-hero-amount{font-size:40px;font-weight:700;letter-spacing:-.04em;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:8px;}
+    .balance-hero-amount.neg{color:var(--red);}
+    .balance-hero-delta{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+    .balance-hero-split{font-size:10.5px;color:var(--text3);}
+    .month-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-radius:14px;overflow:hidden;border:1px solid var(--border);margin-top:18px;}
+    .month-stat{background:var(--s1);padding:13px 14px;}
+    .month-stat-label{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:5px;}
+    .month-stat-value{font-size:16px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+    .month-stat-value.green{color:var(--green);}
+    .month-stat-value.red{color:var(--red);}
+    .month-stat-sub{font-size:10px;color:var(--text3);margin-top:3px;}
 
     /* ── WALLET CARD ──────────────────────────────────── */
-    .wallet-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px;position:relative;transition:border-color .2s;}
-    .wallet-card:hover{border-color:var(--border2);}
-    .wallet-card.type-bank{border-top:2px solid #3b82c4;}
-    .wallet-card.type-e-wallet{border-top:2px solid #5b6af5;}
-    .wallet-card.type-cash{border-top:2px solid #1aaf74;}
-    .wallet-card.type-credit{border-top:2px solid #d94f4f;background:linear-gradient(160deg,var(--s1) 0%,#110b0b 100%);}
-    .wallet-type-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:10px;}
-    .wallet-name{font-weight:600;font-size:15px;margin-bottom:12px;letter-spacing:-.01em;}
-    .wallet-balance{font-size:22px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+    .wallet-scroll{display:flex;gap:12px;overflow-x:auto;margin:0 -20px;padding:0 20px 8px;scrollbar-width:none;}
+    .wallet-scroll::-webkit-scrollbar{display:none;}
+    .wallet-card{flex:0 0 auto;width:210px;border-radius:20px;padding:18px;position:relative;overflow:hidden;border:1px solid var(--border);transition:transform .2s;box-shadow:var(--shadow);cursor:default;}
+    .wallet-card:active{transform:scale(.97);}
+    .wallet-card.type-bank{background:linear-gradient(145deg,#0d1520 0%,#111d2e 100%);border-top:2px solid rgba(96,165,250,.4);}
+    .wallet-card.type-e-wallet{background:linear-gradient(145deg,#0f0d22 0%,#14122c 100%);border-top:2px solid rgba(108,94,246,.4);}
+    .wallet-card.type-cash{background:linear-gradient(145deg,#0b1a12 0%,#0f2018 100%);border-top:2px solid rgba(34,197,94,.4);}
+    .wallet-card.type-credit{background:linear-gradient(145deg,#1c0a0a 0%,#220f0f 100%);border-top:2px solid rgba(248,113,113,.4);}
+    .wallet-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+    .wallet-card-icon{font-size:22px;line-height:1;}
+    .wallet-card-name{font-size:11.5px;font-weight:500;color:var(--text2);margin-bottom:5px;letter-spacing:.01em;}
+    .wallet-balance{font-size:24px;font-weight:700;letter-spacing:-.04em;font-variant-numeric:tabular-nums;line-height:1.1;}
     .wallet-balance.pos{color:var(--text);}
     .wallet-balance.neg{color:var(--red);}
-    .credit-detail{font-size:11px;color:var(--text2);margin-top:10px;display:flex;gap:16px;}
-    .credit-detail span{display:flex;flex-direction:column;gap:2px;}
+    .credit-detail{font-size:11px;color:var(--text2);margin-top:10px;display:flex;gap:14px;}
+    .credit-detail span{display:flex;flex-direction:column;gap:3px;}
     .credit-detail b{color:var(--text);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;}
-    .wallet-menu-btn{position:absolute;top:14px;right:14px;width:24px;height:24px;border-radius:6px;border:none;background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-    .wallet-menu-btn:hover{background:var(--s3);color:var(--text2);}
-    .wallet-actions{display:flex;gap:6px;margin-top:14px;overflow:hidden;max-height:0;transition:max-height .25s ease,opacity .25s;opacity:0;}
+    .wallet-menu-btn{width:28px;height:28px;border-radius:9px;border:none;background:rgba(255,255,255,.07);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:15px;}
+    .wallet-menu-btn:hover{background:rgba(255,255,255,.12);color:var(--text2);}
+    .wallet-actions{display:flex;gap:5px;margin-top:12px;overflow:hidden;max-height:0;transition:max-height .25s ease,opacity .25s;opacity:0;}
     .wallet-actions.open{max-height:50px;opacity:1;}
     .wallet-actions .btn{flex:1;font-size:11px;}
 
     /* ── STAT CARDS ───────────────────────────────────── */
-    .stat-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;}
-    .stat-label{font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+    .stat-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow);}
+    .stat-label{font-size:9.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;}
     .stat-value{font-size:22px;font-weight:700;letter-spacing:-.04em;font-variant-numeric:tabular-nums;line-height:1;}
     .stat-value.green{color:var(--green);}
     .stat-value.red{color:var(--red);}
     .stat-value.blue{color:var(--blue);}
     .stat-value.purple{color:var(--accent);}
-    .stat-sub{font-size:11px;color:var(--text2);margin-top:6px;}
+    .stat-sub{font-size:11px;color:var(--text2);margin-top:5px;}
 
     /* ── BUTTONS ──────────────────────────────────────── */
-    .btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:12.5px;font-weight:500;transition:all .15s;letter-spacing:.01em;}
-    .btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 12px rgba(91,106,245,.3);}
-    .btn-primary:hover{background:#6b79f7;}
-    .btn-ghost{background:var(--s2);color:var(--text);border:1px solid var(--border2);}
-    .btn-ghost:hover{background:var(--s3);border-color:var(--border2);}
-    .btn-sm{padding:5px 11px;font-size:11.5px;}
-    .btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(217,79,79,.2);}
-    .btn-danger:hover{background:rgba(217,79,79,.18);}
-    .btn-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(26,175,116,.2);}
-    .btn-green:hover{background:rgba(26,175,116,.18);}
+    .btn{padding:9px 16px;border-radius:10px;border:none;cursor:pointer;font-size:12.5px;font-weight:500;transition:all .15s;letter-spacing:.01em;font-family:inherit;}
+    .btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 14px rgba(108,94,246,.4);}
+    .btn-primary:hover{background:#7c6ff8;}
+    .btn-ghost{background:var(--s2);color:var(--text2);border:1px solid var(--border2);}
+    .btn-ghost:hover{background:var(--s3);color:var(--text);}
+    .btn-sm{padding:6px 12px;font-size:11.5px;border-radius:8px;}
+    .btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.2);}
+    .btn-danger:hover{background:rgba(248,113,113,.18);}
+    .btn-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+    .btn-green:hover{background:rgba(34,197,94,.18);}
 
     /* ── SECTION HEADER ───────────────────────────────── */
-    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-    .section-title{font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .section-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;}
 
     /* ── TRANSACTIONS ─────────────────────────────────── */
-    .tx-list{display:flex;flex-direction:column;gap:1px;}
-    .tx-row{display:flex;align-items:center;padding:11px 10px;border-radius:8px;gap:12px;transition:background .12s;}
+    .tx-list{display:flex;flex-direction:column;gap:2px;}
+    .tx-row{display:flex;align-items:center;padding:10px 12px;border-radius:14px;gap:12px;transition:background .12s;}
     .tx-row:hover{background:var(--s2);}
+    .tx-icon{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .tx-icon.income{background:rgba(34,197,94,.12);}
+    .tx-icon.expense{background:rgba(248,113,113,.1);}
+    .tx-icon.transfer{background:rgba(108,94,246,.12);}
     .tx-marker{width:3px;height:32px;border-radius:2px;flex-shrink:0;}
     .tx-marker.income{background:var(--green);}
     .tx-marker.expense{background:var(--red);}
@@ -119,51 +144,51 @@
     .tx-info{flex:1;min-width:0;}
     .tx-desc{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em;}
     .tx-meta{font-size:11px;color:var(--text2);margin-top:2px;}
-    .tx-amount{font-weight:600;font-size:13.5px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
+    .tx-amount{font-weight:600;font-size:14px;text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
     .tx-amount.income{color:var(--green);}
     .tx-amount.expense{color:var(--red);}
     .tx-amount.transfer{color:var(--accent);}
 
     /* ── MODAL ────────────────────────────────────────── */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(4px);}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(10px);}
     .modal-backdrop.hidden{display:none;}
-    .modal{background:var(--s1);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.6);}
-    .modal-header{padding:22px 26px 0;display:flex;align-items:center;justify-content:space-between;}
-    .modal-title{font-size:16px;font-weight:700;letter-spacing:-.02em;}
-    .modal-close{width:28px;height:28px;border-radius:8px;border:none;background:var(--s2);color:var(--text2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-    .modal-close:hover{background:var(--s3);color:var(--text);}
-    .modal-body{padding:20px 26px 28px;}
+    .modal{background:var(--s1);border:1px solid var(--border2);border-radius:22px;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04);}
+    .modal-header{padding:24px 26px 0;display:flex;align-items:center;justify-content:space-between;}
+    .modal-title{font-size:17px;font-weight:700;letter-spacing:-.02em;}
+    .modal-close{width:30px;height:30px;border-radius:10px;border:none;background:var(--s3);color:var(--text2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+    .modal-close:hover{background:var(--border2);color:var(--text);}
+    .modal-body{padding:22px 26px 30px;}
 
     /* ── FORM ─────────────────────────────────────────── */
     .form-group{margin-bottom:14px;}
-    .form-label{display:block;font-size:10.5px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em;}
-    .form-input,.form-select{width:100%;padding:10px 13px;background:var(--s2);border:1px solid var(--border2);border-radius:9px;color:var(--text);font-size:13.5px;outline:none;transition:border-color .15s;font-family:inherit;}
+    .form-label{display:block;font-size:10px;font-weight:600;color:var(--text3);margin-bottom:7px;text-transform:uppercase;letter-spacing:.09em;}
+    .form-input,.form-select{width:100%;padding:11px 14px;background:var(--s2);border:1px solid var(--border2);border-radius:12px;color:var(--text);font-size:14px;outline:none;transition:border-color .15s;font-family:inherit;}
     .form-input:focus,.form-select:focus{border-color:var(--accent);}
     .form-select option{background:var(--s2);}
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
     .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
 
     /* ── TYPE TABS ────────────────────────────────────── */
-    .type-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:18px;}
-    .type-tab{padding:9px 8px;border-radius:9px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:12.5px;font-weight:600;transition:all .15s;letter-spacing:.01em;}
-    .type-tab:hover{border-color:var(--border2);color:var(--text);background:var(--s2);}
-    .type-tab.active.expense{border-color:rgba(217,79,79,.4);color:var(--red);background:var(--red-dim);}
-    .type-tab.active.income{border-color:rgba(26,175,116,.4);color:var(--green);background:var(--green-dim);}
-    .type-tab.active.transfer{border-color:rgba(91,106,245,.4);color:var(--accent);background:var(--accent-dim);}
+    .type-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:20px;background:var(--s3);border-radius:14px;padding:4px;border:1px solid var(--border);}
+    .type-tab{padding:10px 8px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--text3);cursor:pointer;font-size:12.5px;font-weight:600;transition:all .15s;letter-spacing:.01em;font-family:inherit;}
+    .type-tab:hover{color:var(--text2);}
+    .type-tab.active.expense{border-color:rgba(248,113,113,.3);color:var(--red);background:var(--red-dim);}
+    .type-tab.active.income{border-color:rgba(34,197,94,.3);color:var(--green);background:var(--green-dim);}
+    .type-tab.active.transfer{border-color:rgba(108,94,246,.3);color:var(--accent);background:var(--accent-dim);}
 
     /* ── WALLET TYPE OPTS ─────────────────────────────── */
     .wallet-type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px;}
-    .wt-opt{padding:10px 4px;border-radius:9px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:11px;font-weight:600;transition:all .15s;text-align:center;}
-    .wt-opt .wt-icon{font-size:15px;display:block;margin-bottom:3px;}
-    .wt-opt.active{border-color:rgba(91,106,245,.5);color:var(--accent);background:var(--accent-dim);}
+    .wt-opt{padding:12px 4px;border-radius:12px;border:1px solid var(--border2);background:var(--s2);color:var(--text2);cursor:pointer;font-size:11px;font-weight:600;transition:all .15s;text-align:center;font-family:inherit;}
+    .wt-opt .wt-icon{font-size:18px;display:block;margin-bottom:4px;}
+    .wt-opt.active{border-color:rgba(108,94,246,.5);color:var(--accent);background:var(--accent-dim);}
 
     /* ── ONBOARDING ───────────────────────────────────── */
     .onboarding{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
     .onboarding.hidden{display:none;}
-    .ob-card{background:var(--s1);border:1px solid var(--border2);border-radius:20px;padding:36px;width:100%;max-width:420px;text-align:center;box-shadow:0 32px 80px rgba(0,0,0,.5);}
-    .ob-icon{font-size:36px;margin-bottom:14px;}
-    .ob-title{font-size:20px;font-weight:700;margin-bottom:6px;letter-spacing:-.03em;}
-    .ob-sub{font-size:13px;color:var(--text2);margin-bottom:28px;line-height:1.5;}
+    .ob-card{background:var(--s1);border:1px solid var(--border2);border-radius:24px;padding:36px;width:100%;max-width:420px;text-align:center;box-shadow:var(--shadow-lg);}
+    .ob-icon{font-size:44px;margin-bottom:16px;}
+    .ob-title{font-size:22px;font-weight:700;margin-bottom:8px;letter-spacing:-.03em;}
+    .ob-sub{font-size:13px;color:var(--text2);margin-bottom:28px;line-height:1.6;}
 
     /* ── SEARCH / FILTER ──────────────────────────────── */
     .search-wrap{position:relative;margin-bottom:14px;}
@@ -415,7 +440,7 @@
 
   <!-- mobile top bar -->
   <div class="mobile-header">
-    <span class="mobile-header-brand">Vault</span>
+    <span class="mobile-header-brand"><span style="color:var(--accent)">V</span>ault</span>
     <div class="mobile-header-actions">
       <button class="privacy-btn" id="privacy-btn-mobile" onclick="togglePrivacy()" title="Hide/show balances" style="border:none;background:transparent;color:var(--text3);padding:6px;cursor:pointer;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -426,7 +451,7 @@
 
   <!-- desktop top nav -->
   <nav class="nav">
-    <span class="nav-brand">Vault</span>
+    <span class="nav-brand"><span>V</span>ault</span>
     <button class="nav-tab active" data-page="dashboard" onclick="goPage('dashboard')">Dashboard</button>
     <button class="nav-tab" data-page="transactions" onclick="goPage('transactions')">Transactions</button>
     <button class="nav-tab" data-page="reports" onclick="goPage('reports')">Reports</button>
@@ -446,7 +471,7 @@
 
     <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
-      <div class="grid-4 mb-8" id="dash-stats"></div>
+      <div id="dash-stats" class="mb-16"></div>
       <div id="dash-streak" style="margin-bottom:12px"></div>
       <div id="dash-forecast-wrap" class="mb-16" style="display:none">
         <div class="section-header">
@@ -468,7 +493,7 @@
         <span class="section-title">Wallets</span>
         <button class="btn btn-ghost btn-sm" onclick="openModal('wallet')">+ Wallet</button>
       </div>
-      <div class="wallet-grid mb-16" id="dash-wallets"></div>
+      <div class="wallet-scroll mb-16" id="dash-wallets"></div>
       <div class="section-header">
         <span class="section-title">Recent Transactions</span>
         <button class="btn btn-ghost btn-sm" onclick="goPage('transactions')">View all</button>
@@ -1636,10 +1661,16 @@ function renderDashboard(){
   const deltaHtml=nwDelta!==0?`<span style="font-size:10px;color:${nwDelta>0?'var(--green)':'var(--red)'}">${nwDelta>0?'▲':'▼'} ${pf(Math.abs(nwDelta))} vs last mo</span>`:'';
   const liabHtml=totalLiab>0?`<div style="font-size:10px;color:var(--text3);margin-top:3px">Assets ${pf(totalAssets)} · Debt ${pf(totalLiab,true)}</div>`:`<div class="stat-sub">${db.wallets.length} wallet${db.wallets.length!==1?'s':''}</div>`;
   document.getElementById('dash-stats').innerHTML=`
-    <div class="stat-card"><div class="stat-label">Net Worth</div><div class="stat-value ${totBal>=0?'green':'red'}">${pf(totBal)}</div>${deltaHtml?`<div class="stat-sub" style="margin-top:4px">${deltaHtml}</div>`:''}${liabHtml}</div>
-    <div class="stat-card"><div class="stat-label">Income this month</div><div class="stat-value green">${pf(inc)}</div></div>
-    <div class="stat-card"><div class="stat-label">Expenses this month</div><div class="stat-value red">${pf(exp)}</div></div>
-    <div class="stat-card"><div class="stat-label">Net this month</div><div class="stat-value ${inc-exp>=0?'green':'red'}">${pf(inc-exp)}</div>${savingsRate!==null?`<div class="stat-sub">${savingsRate}% savings rate</div>`:''}
+    <div class="balance-hero">
+      <div class="balance-hero-label">Net Worth</div>
+      <div class="balance-hero-amount${totBal<0?' neg':''}">${pf(totBal)}</div>
+      ${nwDelta!==0?`<div class="balance-hero-delta"><span style="color:${nwDelta>0?'var(--green)':'var(--red)'}">${nwDelta>0?'▲':'▼'} ${pf(Math.abs(nwDelta))}</span> vs last month</div>`:''}
+      ${totalLiab>0?`<div class="balance-hero-split">Assets ${pf(totalAssets)} · Liabilities ${pf(totalLiab,true)}</div>`:''}
+      <div class="month-stats">
+        <div class="month-stat"><div class="month-stat-label">Income</div><div class="month-stat-value green">${pf(inc)}</div><div class="month-stat-sub">this month</div></div>
+        <div class="month-stat"><div class="month-stat-label">Expenses</div><div class="month-stat-value red">${pf(exp)}</div><div class="month-stat-sub">this month</div></div>
+        <div class="month-stat"><div class="month-stat-label">Net</div><div class="month-stat-value ${inc-exp>=0?'green':'red'}">${pf(inc-exp)}</div>${savingsRate!==null?`<div class="month-stat-sub">${savingsRate}% saved</div>`:''}</div>
+      </div>
     </div>
   `;
   document.getElementById('dash-streak').innerHTML=streak===0?'':`
@@ -1727,10 +1758,12 @@ function walletCard(w){
           </div>`).join('')}
       </div>`:'';
     return`<div class="wallet-card type-credit">
-      <button class="wallet-menu-btn" onclick="toggleWalletMenu('wm-${w.id}',this)" title="Options">⋯</button>
-      <div class="wallet-type-badge">credit card</div>
-      <div class="wallet-name">${w.name}</div>
-      <div class="wallet-balance neg">${pf(out,true)} <span style="font-size:12px;font-weight:400;color:var(--text2)">outstanding</span></div>
+      <div class="wallet-card-top">
+        <div class="wallet-card-icon">💳</div>
+        <button class="wallet-menu-btn" onclick="toggleWalletMenu('wm-${w.id}',this)" title="Options">⋯</button>
+      </div>
+      <div class="wallet-card-name">${w.name}</div>
+      <div class="wallet-balance neg">${pf(out,true)}</div>
       ${stmtHtml}
       <div class="credit-detail">
         <span><b>${pf(avail)}</b>available</span>
@@ -1758,9 +1791,11 @@ function walletCard(w){
     }
   }
   return`<div class="wallet-card type-${w.type}">
-    <button class="wallet-menu-btn" onclick="toggleWalletMenu('wm-${w.id}',this)" title="Options">⋯</button>
-    <div class="wallet-type-badge">${w.type}</div>
-    <div class="wallet-name">${w.name}</div>
+    <div class="wallet-card-top">
+      <div class="wallet-card-icon">${W_ICONS[w.type]||'💼'}</div>
+      <button class="wallet-menu-btn" onclick="toggleWalletMenu('wm-${w.id}',this)" title="Options">⋯</button>
+    </div>
+    <div class="wallet-card-name">${w.name}</div>
     <div class="wallet-balance ${b<0?'neg':'pos'}">${pf(b)}</div>
     ${cashFlowHtml}
     <div class="wallet-actions" id="wm-${w.id}">
@@ -1856,8 +1891,9 @@ function txRow(t,actions){
   const vendorStr=t.vendor?` · ${t.vendor}`:'';
   const instStr=t.installmentMonths>0?` · ${t.installmentMonths}mo installment`:'';
   const meta=[t.category,wLabel+vendorStr,t.frequency+instStr,t.date].filter(Boolean).join(' · ');
+  const txIconEmoji=t.type==='transfer'?'⇄':(CAT_ICONS[t.category]||'📌');
   return`<div class="tx-row">
-    <div class="tx-marker ${t.type}"></div>
+    <div class="tx-icon ${t.type}">${txIconEmoji}</div>
     <div class="tx-info"><div class="tx-desc">${t.description||t.category||'—'}</div><div class="tx-meta">${meta}</div></div>
     <div class="tx-amount ${t.type}">${amtStr}</div>
     ${actions?`<button class="btn btn-ghost btn-sm" style="padding:4px 8px;flex-shrink:0" onclick="editTx('${t.id}')">✎</button><button class="btn btn-sm btn-danger" style="padding:4px 8px;flex-shrink:0" onclick="deleteTx('${t.id}')">✕</button>`:''}
