@@ -1,4 +1,4 @@
-const CACHE = 'vault-v1';
+const CACHE = 'vault-v2';
 
 const PRECACHE = [
   './',
@@ -30,3 +30,31 @@ self.addEventListener('fetch', e => {
     }))
   );
 });
+
+// Periodic background sync — fires once a day on installed PWAs (Chrome/Edge)
+self.addEventListener('periodicsync', e => {
+  if (e.tag === 'vault-daily-nudge') {
+    e.waitUntil(checkIdleAndNotify());
+  }
+});
+
+async function checkIdleAndNotify() {
+  // Read lastTxAt from cache-stored db snapshot
+  const cache = await caches.open(CACHE);
+  const resp = await cache.match('vault-db');
+  if (!resp) return;
+  try {
+    const db = await resp.json();
+    const last = db?.settings?.lastTxAt;
+    if (!last) return;
+    if (Date.now() - new Date(last).getTime() > 23 * 3600 * 1000) {
+      self.registration.showNotification('Vault — log today\'s transactions', {
+        body: 'You haven\'t logged anything in over 24 hours. Keep your data current.',
+        icon: './icon-192.png',
+        badge: './icon-96.png',
+        tag: 'vault-idle',
+        renotify: false,
+      });
+    }
+  } catch {}
+}
