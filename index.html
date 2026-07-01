@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#07070d">
+  <meta name="theme-color" content="#06060e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Vault">
@@ -13,35 +13,35 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
     :root {
-      --bg: #07070f;
-      --s1: #0d0d1a;
-      --s2: #131321;
-      --s3: #1b1b2e;
-      --border: rgba(255,255,255,0.07);
-      --border2: rgba(255,255,255,0.13);
-      --accent: #6c5ef6;
-      --accent-dim: rgba(108,94,246,0.14);
-      --green: #22c55e;
-      --green-dim: rgba(34,197,94,0.1);
-      --red: #f87171;
-      --red-dim: rgba(248,113,113,0.1);
-      --amber: #fbbf24;
-      --amber-dim: rgba(251,191,36,0.1);
-      --blue: #60a5fa;
-      --blue-dim: rgba(96,165,250,0.1);
-      --text: #f0f0f8;
-      --text2: #6b7280;
-      --text3: #374151;
+      --bg: #06060e;
+      --s1: #0b0b17;
+      --s2: #10101e;
+      --s3: #171728;
+      --border: rgba(255,255,255,0.06);
+      --border2: rgba(255,255,255,0.11);
+      --accent: #c9a74e;
+      --accent-dim: rgba(201,167,78,0.11);
+      --green: #10b981;
+      --green-dim: rgba(16,185,129,0.1);
+      --red: #fb7185;
+      --red-dim: rgba(251,113,133,0.1);
+      --amber: #f59e0b;
+      --amber-dim: rgba(245,158,11,0.1);
+      --blue: #38bdf8;
+      --blue-dim: rgba(56,189,248,0.1);
+      --text: #eeeef6;
+      --text2: #545872;
+      --text3: #2e3248;
       --r: 16px;
-      --shadow: 0 1px 3px rgba(0,0,0,.6),0 4px 16px rgba(0,0,0,.3);
-      --shadow-lg: 0 2px 6px rgba(0,0,0,.7),0 10px 40px rgba(0,0,0,.4);
+      --shadow: 0 1px 3px rgba(0,0,0,.7),0 4px 20px rgba(0,0,0,.4);
+      --shadow-lg: 0 2px 8px rgba(0,0,0,.8),0 12px 48px rgba(0,0,0,.5);
     }
 
     *{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;}
 
     /* ── NAV ──────────────────────────────────────────── */
-    .nav{display:flex;align-items:center;background:rgba(7,7,15,.9);border-bottom:1px solid var(--border);padding:0 20px;height:56px;gap:0;flex-shrink:0;backdrop-filter:blur(16px);}
+    .nav{display:flex;align-items:center;background:rgba(6,6,14,.94);border-bottom:1px solid var(--border);padding:0 20px;height:56px;gap:0;flex-shrink:0;backdrop-filter:blur(20px);}
     .nav-brand{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.02em;margin-right:28px;white-space:nowrap;}
     .nav-brand span{color:var(--accent);}
     .nav-tab{padding:0 12px;height:56px;border:none;background:transparent;color:var(--text3);cursor:pointer;font-size:12.5px;font-weight:500;transition:color .15s;white-space:nowrap;position:relative;letter-spacing:.01em;font-family:inherit;}
@@ -64,8 +64,8 @@
     .wallet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
 
     /* ── BALANCE HERO ─────────────────────────────────── */
-    .balance-hero{background:linear-gradient(135deg,var(--s1) 0%,rgba(108,94,246,.06) 100%);border:1px solid var(--border2);border-radius:22px;padding:26px 22px 20px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;}
-    .balance-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:160px;height:160px;background:radial-gradient(circle,rgba(108,94,246,.14) 0%,transparent 70%);pointer-events:none;}
+    .balance-hero{background:linear-gradient(135deg,var(--s1) 0%,rgba(201,167,78,.04) 100%);border:1px solid var(--border2);border-radius:22px;padding:26px 22px 20px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;}
+    .balance-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:160px;height:160px;background:radial-gradient(circle,rgba(201,167,78,.1) 0%,transparent 70%);pointer-events:none;}
     .balance-hero-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:10px;}
     .balance-hero-amount{font-size:40px;font-weight:700;letter-spacing:-.04em;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:8px;}
     .balance-hero-amount.neg{color:var(--red);}
@@ -84,10 +84,10 @@
     .wallet-scroll::-webkit-scrollbar{display:none;}
     .wallet-card{flex:0 0 auto;width:210px;border-radius:20px;padding:18px;position:relative;overflow:hidden;border:1px solid var(--border);transition:transform .2s;box-shadow:var(--shadow);cursor:default;}
     .wallet-card:active{transform:scale(.97);}
-    .wallet-card.type-bank{background:linear-gradient(145deg,#0d1520 0%,#111d2e 100%);border-top:2px solid rgba(96,165,250,.4);}
-    .wallet-card.type-e-wallet{background:linear-gradient(145deg,#0f0d22 0%,#14122c 100%);border-top:2px solid rgba(108,94,246,.4);}
-    .wallet-card.type-cash{background:linear-gradient(145deg,#0b1a12 0%,#0f2018 100%);border-top:2px solid rgba(34,197,94,.4);}
-    .wallet-card.type-credit{background:linear-gradient(145deg,#1c0a0a 0%,#220f0f 100%);border-top:2px solid rgba(248,113,113,.4);}
+    .wallet-card.type-bank{background:linear-gradient(145deg,var(--s1) 0%,var(--s2) 100%);border-top:2px solid rgba(56,189,248,.4);}
+    .wallet-card.type-e-wallet{background:linear-gradient(145deg,var(--s1) 0%,var(--s2) 100%);border-top:2px solid rgba(201,167,78,.5);}
+    .wallet-card.type-cash{background:linear-gradient(145deg,var(--s1) 0%,var(--s2) 100%);border-top:2px solid rgba(16,185,129,.4);}
+    .wallet-card.type-credit{background:linear-gradient(145deg,var(--s1) 0%,var(--s2) 100%);border-top:2px solid rgba(251,113,133,.4);}
     .wallet-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
     .wallet-card-icon{font-size:22px;line-height:1;}
     .wallet-card-name{font-size:11.5px;font-weight:500;color:var(--text2);margin-bottom:5px;letter-spacing:.01em;}
@@ -115,15 +115,15 @@
 
     /* ── BUTTONS ──────────────────────────────────────── */
     .btn{padding:9px 16px;border-radius:10px;border:none;cursor:pointer;font-size:12.5px;font-weight:500;transition:all .15s;letter-spacing:.01em;font-family:inherit;}
-    .btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 14px rgba(108,94,246,.4);}
-    .btn-primary:hover{background:#7c6ff8;}
+    .btn-primary{background:var(--accent);color:#0b0b17;font-weight:600;box-shadow:0 2px 14px rgba(201,167,78,.3);}
+    .btn-primary:hover{background:#d4b265;}
     .btn-ghost{background:var(--s2);color:var(--text2);border:1px solid var(--border2);}
     .btn-ghost:hover{background:var(--s3);color:var(--text);}
     .btn-sm{padding:6px 12px;font-size:11.5px;border-radius:8px;}
-    .btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.2);}
-    .btn-danger:hover{background:rgba(248,113,113,.18);}
-    .btn-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.2);}
-    .btn-green:hover{background:rgba(34,197,94,.18);}
+    .btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(251,113,133,.2);}
+    .btn-danger:hover{background:rgba(251,113,133,.16);}
+    .btn-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,.2);}
+    .btn-green:hover{background:rgba(16,185,129,.16);}
 
     /* ── SECTION HEADER ───────────────────────────────── */
     .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
@@ -134,9 +134,9 @@
     .tx-row{display:flex;align-items:center;padding:10px 12px;border-radius:14px;gap:12px;transition:background .12s;}
     .tx-row:hover{background:var(--s2);}
     .tx-icon{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-    .tx-icon.income{background:rgba(34,197,94,.12);}
-    .tx-icon.expense{background:rgba(248,113,113,.1);}
-    .tx-icon.transfer{background:rgba(108,94,246,.12);}
+    .tx-icon.income{background:rgba(16,185,129,.12);}
+    .tx-icon.expense{background:rgba(251,113,133,.1);}
+    .tx-icon.transfer{background:rgba(201,167,78,.12);}
     .tx-marker{width:3px;height:32px;border-radius:2px;flex-shrink:0;}
     .tx-marker.income{background:var(--green);}
     .tx-marker.expense{background:var(--red);}
@@ -172,15 +172,15 @@
     .type-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:20px;background:var(--s3);border-radius:14px;padding:4px;border:1px solid var(--border);}
     .type-tab{padding:10px 8px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--text3);cursor:pointer;font-size:12.5px;font-weight:600;transition:all .15s;letter-spacing:.01em;font-family:inherit;}
     .type-tab:hover{color:var(--text2);}
-    .type-tab.active.expense{border-color:rgba(248,113,113,.3);color:var(--red);background:var(--red-dim);}
-    .type-tab.active.income{border-color:rgba(34,197,94,.3);color:var(--green);background:var(--green-dim);}
-    .type-tab.active.transfer{border-color:rgba(108,94,246,.3);color:var(--accent);background:var(--accent-dim);}
+    .type-tab.active.expense{border-color:rgba(251,113,133,.3);color:var(--red);background:var(--red-dim);}
+    .type-tab.active.income{border-color:rgba(16,185,129,.3);color:var(--green);background:var(--green-dim);}
+    .type-tab.active.transfer{border-color:rgba(201,167,78,.3);color:var(--accent);background:var(--accent-dim);}
 
     /* ── WALLET TYPE OPTS ─────────────────────────────── */
     .wallet-type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px;}
     .wt-opt{padding:12px 4px;border-radius:12px;border:1px solid var(--border2);background:var(--s2);color:var(--text2);cursor:pointer;font-size:11px;font-weight:600;transition:all .15s;text-align:center;font-family:inherit;}
     .wt-opt .wt-icon{font-size:18px;display:block;margin-bottom:4px;}
-    .wt-opt.active{border-color:rgba(108,94,246,.5);color:var(--accent);background:var(--accent-dim);}
+    .wt-opt.active{border-color:rgba(201,167,78,.5);color:var(--accent);background:var(--accent-dim);}
 
     /* ── ONBOARDING ───────────────────────────────────── */
     .onboarding{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
@@ -222,8 +222,8 @@
     .due-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);}
     .due-item:last-child{border-bottom:none;}
     .due-badge{min-width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;letter-spacing:.03em;}
-    .due-badge.urgent{background:var(--red-dim);color:var(--red);border:1px solid rgba(217,79,79,.2);}
-    .due-badge.soon{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(196,154,58,.2);}
+    .due-badge.urgent{background:var(--red-dim);color:var(--red);border:1px solid rgba(251,113,133,.2);}
+    .due-badge.soon{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(201,167,78,.2);}
     .due-badge.ok{background:var(--green-dim);color:var(--green);border:1px solid rgba(26,175,116,.2);}
     .due-info{flex:1;min-width:0;}
     .due-name{font-size:13px;font-weight:500;letter-spacing:-.01em;}
@@ -433,7 +433,7 @@
 <div id="app" style="display:none;flex-direction:column;height:100vh;height:100dvh">
 
   <!-- idle nudge banner -->
-  <div id="idle-banner" hidden style="padding:8px 16px;background:rgba(251,191,36,.1);border-bottom:1px solid rgba(251,191,36,.25);font-size:12px;color:var(--amber);display:flex;align-items:center;gap:8px;justify-content:space-between">
+  <div id="idle-banner" hidden style="padding:8px 16px;background:rgba(245,158,11,.1);border-bottom:1px solid rgba(245,158,11,.25);font-size:12px;color:var(--amber);display:flex;align-items:center;gap:8px;justify-content:space-between">
     <span>⏰ No transactions logged in over 24 hours — your data is behind.</span>
     <button onclick="document.getElementById('idle-banner').hidden=true" style="background:none;border:none;color:var(--amber);font-size:14px;cursor:pointer;flex-shrink:0">✕</button>
   </div>
@@ -882,7 +882,7 @@
         <div class="form-group"><label class="form-label">Due Day (of month)</label><input type="number" class="form-input" id="rem-dueday" placeholder="e.g. 15" min="1" max="31" /></div>
       </div>
       <div class="form-group"><label class="form-label">Notes (optional)</label><input class="form-input" id="rem-notes" placeholder="Any additional notes" /></div>
-      <div class="form-group" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:8px">
+      <div class="form-group" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:8px">
         <input type="checkbox" id="rem-committed" style="width:16px;height:16px;accent-color:var(--amber)" />
         <div>
           <div style="font-size:13px;font-weight:500">Mark as committed expense</div>
@@ -922,7 +922,7 @@ const EXP_CATS=['Food & Dining','Transportation','Gasoline','Clothing','Family',
 const INC_CATS=['Salary','Business','Freelance','Investment','Gift','Bonus'];
 const W_ICONS={bank:'🏦','e-wallet':'📱',cash:'💵',credit:'💳'};
 const CAT_ICONS={'Food & Dining':'🍽️','Transportation':'🚌','Gasoline':'⛽','Clothing':'👕','Family':'👨‍👩‍👧','Remittance':'💸','Tithes':'⛪','Utilities':'💡','Transfer Fee':'🔁','Entertainment':'🎬','Health':'🏥','Groceries':'🛒','Education':'📚','Subscriptions':'📺','Rent':'🏠','Savings':'💰','Salary':'💰','Business':'💼','Freelance':'💻','Investment':'📈','Gift':'🎁','Bonus':'🎉'};
-const COLORS=['#818cf8','#34d399','#f87171','#fbbf24','#60a5fa','#f472b6','#a78bfa','#fb923c','#4ade80','#38bdf8','#e879f9','#2dd4bf'];
+const COLORS=['#c9a74e','#10b981','#fb7185','#38bdf8','#a78bfa','#f59e0b','#34d399','#fda4af','#7dd3fc','#c4b5fd','#fde68a','#6ee7b7'];
 
 let db={wallets:[],transactions:[],budgets:[],expCats:[],incCats:[],goals:[],reminders:[],settings:{forecastedIncome:0}};
 let obType='bank',wModalType='bank',txType='expense';
@@ -993,7 +993,7 @@ function renderSettingsCommitted(){
   el.innerHTML=committed.map(r=>`
     <div class="budget-item" style="display:flex;align-items:center;gap:10px">
       <div style="flex:1"><div style="font-weight:500;font-size:13px">🔒 ${r.name}</div><div style="font-size:11px;color:var(--text2)">₱${fmt(r.estimatedAmount)}/mo · Due ${ordinal(r.dueDay)}</div></div>
-      <button class="btn btn-sm" style="background:rgba(251,191,36,.1);color:var(--amber);font-size:11px" onclick="toggleCommitted('${r.id}')">Remove</button>
+      <button class="btn btn-sm" style="background:rgba(245,158,11,.1);color:var(--amber);font-size:11px" onclick="toggleCommitted('${r.id}')">Remove</button>
     </div>`).join('')+`<div class="total-row"><span>Total committed</span><span>₱${fmt(total)}</span></div>`;
 }
 function toggleCommitted(id){
@@ -1674,7 +1674,7 @@ function renderDashboard(){
     </div>
   `;
   document.getElementById('dash-streak').innerHTML=streak===0?'':`
-    <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:${streak>=7?'rgba(251,191,36,.08)':'var(--s2)'};border:1px solid ${streak>=7?'rgba(251,191,36,.2)':'var(--border)'};border-radius:20px;font-size:11px;font-weight:600;color:${streak>=7?'var(--amber)':'var(--text2)'}">
+    <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:${streak>=7?'rgba(245,158,11,.08)':'var(--s2)'};border:1px solid ${streak>=7?'rgba(245,158,11,.2)':'var(--border)'};border-radius:20px;font-size:11px;font-weight:600;color:${streak>=7?'var(--amber)':'var(--text2)'}">
       ${streak>=7?'🔥':streak>=3?'⚡':'📝'} ${streak}-day streak
     </div>`;
   renderForecast();
@@ -1923,12 +1923,12 @@ function renderBreakdown(){
   chartCat=new Chart(document.getElementById('chart-cat').getContext('2d'),{
     type:'doughnut',
     data:{labels:cats.map(c=>c[0]),datasets:[{data:cats.map(c=>c[1]),backgroundColor:COLORS,borderWidth:0,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#3c3c58',font:{size:11},boxWidth:12,padding:8}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#454a6a',font:{size:11},boxWidth:12,padding:8}}}}
   });
   chartFreq=new Chart(document.getElementById('chart-freq').getContext('2d'),{
     type:'bar',
     data:{labels:Object.keys(byFreq),datasets:[{data:Object.values(byFreq),backgroundColor:COLORS,borderWidth:0,borderRadius:6}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#3c3c58'},grid:{color:'#1c1c30'}},y:{ticks:{color:'#3c3c58',callback:v=>'₱'+fmtK(v)},grid:{color:'#1c1c30'}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#454a6a'},grid:{color:'#111224'}},y:{ticks:{color:'#454a6a',callback:v=>'₱'+fmtK(v)},grid:{color:'#111224'}}}}
   });
   const total=cats.reduce((s,c)=>s+c[1],0);
   document.getElementById('rep-breakdown').innerHTML=cats.length
@@ -1954,11 +1954,11 @@ function renderTrends(){
   chartTrend=new Chart(document.getElementById('chart-trend').getContext('2d'),{
     type:'line',
     data:{labels,datasets:[
-      {label:'Income',data:incData,borderColor:'#34d399',backgroundColor:'rgba(52,211,153,.1)',tension:.3,fill:false,pointRadius:4},
-      {label:'Expenses',data:expData,borderColor:'#f87171',backgroundColor:'rgba(248,113,113,.1)',tension:.3,fill:false,pointRadius:4},
-      {label:'Net',data:netData,borderColor:'#818cf8',backgroundColor:'rgba(129,140,248,.1)',tension:.3,fill:true,pointRadius:4,borderDash:[4,3]}
+      {label:'Income',data:incData,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.1)',tension:.3,fill:false,pointRadius:4},
+      {label:'Expenses',data:expData,borderColor:'#fb7185',backgroundColor:'rgba(251,113,133,.1)',tension:.3,fill:false,pointRadius:4},
+      {label:'Net',data:netData,borderColor:'#c9a74e',backgroundColor:'rgba(201,167,78,.08)',tension:.3,fill:true,pointRadius:4,borderDash:[4,3]}
     ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#3c3c58',font:{size:11}}}},scales:{x:{ticks:{color:'#3c3c58'},grid:{color:'#1c1c30'}},y:{ticks:{color:'#3c3c58',callback:v=>'₱'+fmtK(v)},grid:{color:'#1c1c30'}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#454a6a',font:{size:11}}}},scales:{x:{ticks:{color:'#454a6a'},grid:{color:'#111224'}},y:{ticks:{color:'#454a6a',callback:v=>'₱'+fmtK(v)},grid:{color:'#111224'}}}}
   });
   const avgInc=incData.reduce((s,v)=>s+v,0)/months;
   const avgExp=expData.reduce((s,v)=>s+v,0)/months;
@@ -2023,7 +2023,7 @@ function renderReminders(){
         <div style="font-weight:500;font-size:13px">${r.committed?'🔒 ':''}<b>${r.name}</b> ${r.committed?'<span class="badge-committed">committed</span>':''}</div>
         <div style="font-size:11px;color:var(--text2)">Due: ${ordinal(r.dueDay)} of month · Est. ₱${fmt(r.estimatedAmount)}${r.notes?' · '+r.notes:''}</div>
       </div>
-      <button class="btn btn-sm" style="font-size:11px;${r.committed?'background:rgba(251,191,36,.1);color:var(--amber)':'background:var(--s3);color:var(--text2);border:1px solid var(--border)'}" onclick="toggleCommitted('${r.id}')">${r.committed?'Uncommit':'Commit'}</button>
+      <button class="btn btn-sm" style="font-size:11px;${r.committed?'background:rgba(245,158,11,.1);color:var(--amber)':'background:var(--s3);color:var(--text2);border:1px solid var(--border)'}" onclick="toggleCommitted('${r.id}')">${r.committed?'Uncommit':'Commit'}</button>
       <button class="btn btn-sm btn-danger" onclick="deleteReminder('${r.id}')">✕</button>
     </div>`).join('');
 }
@@ -2174,7 +2174,7 @@ function renderInsights(){
     <div style="display:flex;flex-direction:column;gap:14px">
 
       <!-- Streak -->
-      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:${streak>=7?'rgba(251,191,36,.08)':'var(--s1)'};border:1px solid ${streak>=7?'rgba(251,191,36,.25)':'var(--border)'};border-radius:var(--r)">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:${streak>=7?'rgba(245,158,11,.08)':'var(--s1)'};border:1px solid ${streak>=7?'rgba(245,158,11,.25)':'var(--border)'};border-radius:var(--r)">
         <span style="font-size:26px">${streak>=7?'🔥':streak>=3?'⚡':'📝'}</span>
         <div>
           <div style="font-size:14px;font-weight:600">${streak===0?'No entries yet':streak===1?'1-day streak':streak+'-day streak'}</div>
@@ -2233,7 +2233,7 @@ function renderInsights(){
       <div class="card">
         <div class="section-title mb-12">Spending Concentration — This Month</div>
         ${expCatEntries.length===0?'<div class="empty"><div class="empty-icon">📊</div>No expenses logged this month.</div>':
-          `${topExpPct>=50?`<div style="padding:8px 12px;background:rgba(217,79,79,.08);border:1px solid rgba(217,79,79,.2);border-radius:8px;font-size:12px;color:var(--red);margin-bottom:12px">⚠ ${expCatEntries[0][0]} is ${topExpPct}% of all spending — high concentration</div>`:''}
+          `${topExpPct>=50?`<div style="padding:8px 12px;background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.2);border-radius:8px;font-size:12px;color:var(--red);margin-bottom:12px">⚠ ${expCatEntries[0][0]} is ${topExpPct}% of all spending — high concentration</div>`:''}
           ${expCatEntries.slice(0,6).map(([cat,amt])=>{
             const pct=totalMExp>0?Math.round(amt/totalMExp*100):0;
             const barW=pct;
@@ -2253,7 +2253,7 @@ function renderInsights(){
         ${incCatEntries.length>0?`
           <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
             <div style="font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Income Sources</div>
-            ${incConcentration===100?`<div style="font-size:12px;color:var(--amber);padding:8px 12px;background:rgba(196,154,58,.06);border:1px solid rgba(196,154,58,.15);border-radius:8px;margin-bottom:10px">⚠ 100% of income from ${incCatEntries[0][0]} — single source dependency</div>`:''}
+            ${incConcentration===100?`<div style="font-size:12px;color:var(--amber);padding:8px 12px;background:rgba(201,167,78,.06);border:1px solid rgba(201,167,78,.15);border-radius:8px;margin-bottom:10px">⚠ 100% of income from ${incCatEntries[0][0]} — single source dependency</div>`:''}
             ${incCatEntries.map(([cat,amt])=>{
               const pct=totalMInc>0?Math.round(amt/totalMInc*100):0;
               return`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)">
