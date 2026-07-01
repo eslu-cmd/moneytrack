@@ -10,7 +10,7 @@
   <title>Vault</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
     :root {
       --bg: #06060e;
@@ -30,8 +30,8 @@
       --blue: #38bdf8;
       --blue-dim: rgba(56,189,248,0.1);
       --text: #eeeef6;
-      --text2: #545872;
-      --text3: #2e3248;
+      --text2: #6a6e90;
+      --text3: #505580;
       --r: 16px;
       --shadow: 0 1px 3px rgba(0,0,0,.7),0 4px 20px rgba(0,0,0,.4);
       --shadow-lg: 0 2px 8px rgba(0,0,0,.8),0 12px 48px rgba(0,0,0,.5);
@@ -44,7 +44,7 @@
     .nav{display:flex;align-items:center;background:rgba(6,6,14,.94);border-bottom:1px solid var(--border);padding:0 20px;height:56px;gap:0;flex-shrink:0;backdrop-filter:blur(20px);}
     .nav-brand{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.02em;margin-right:28px;white-space:nowrap;}
     .nav-brand span{color:var(--accent);}
-    .nav-tab{padding:0 12px;height:56px;border:none;background:transparent;color:var(--text3);cursor:pointer;font-size:12.5px;font-weight:500;transition:color .15s;white-space:nowrap;position:relative;letter-spacing:.01em;font-family:inherit;}
+    .nav-tab{padding:0 12px;height:56px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:12.5px;font-weight:500;transition:color .15s;white-space:nowrap;position:relative;letter-spacing:.01em;font-family:inherit;}
     .nav-tab::after{content:'';position:absolute;bottom:0;left:12px;right:12px;height:2px;background:var(--accent);border-radius:2px 2px 0 0;opacity:0;transition:opacity .15s;}
     .nav-tab:hover{color:var(--text2);}
     .nav-tab.active{color:var(--text);}
@@ -331,7 +331,7 @@
 
       /* cards */
       .stat-card{padding:14px;} .stat-value{font-size:18px;}
-      .wallet-balance{font-size:17px;}
+      .wallet-balance{font-size:22px;}
 
       /* forms */
       .form-row,.form-row-3{grid-template-columns:1fr;gap:0;}
@@ -353,7 +353,7 @@
       .filter-bar .form-select,.filter-bar .form-input{flex-shrink:0;}
 
       /* FAB above bottom nav */
-      .fab{position:fixed;bottom:calc(68px + env(safe-area-inset-bottom));right:20px;width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(91,106,245,.5);display:flex;align-items:center;justify-content:center;z-index:90;transition:transform .15s;}
+      .fab{position:fixed;bottom:calc(68px + env(safe-area-inset-bottom));right:20px;width:52px;height:52px;border-radius:50%;background:var(--accent);color:#0b0b17;font-weight:700;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(201,167,78,.4);display:flex;align-items:center;justify-content:center;z-index:90;transition:transform .15s;}
       .fab:active{transform:scale(.92);}
       .cat-grid{grid-template-columns:repeat(4,1fr);}
     }
@@ -368,12 +368,12 @@
 
     .wallet-pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
     .wallet-pill{display:flex;align-items:center;gap:5px;padding:6px 12px;background:var(--s2);border:1px solid var(--border);border-radius:20px;cursor:pointer;font-size:12px;color:var(--text2);white-space:nowrap;transition:all .15s;}
-    .wallet-pill.active{background:rgba(129,140,248,.15);border-color:var(--accent);color:var(--text);font-weight:500;}
+    .wallet-pill.active{background:var(--accent-dim);border-color:var(--accent);color:var(--text);font-weight:500;}
     .wallet-pill:hover:not(.active){border-color:var(--border2);color:var(--text);}
 
     .chip-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
     .chip{padding:5px 11px;background:var(--s2);border:1px solid var(--border);border-radius:20px;cursor:pointer;font-size:11px;color:var(--text2);transition:all .15s;white-space:nowrap;}
-    .chip.active{background:rgba(129,140,248,.15);border-color:var(--accent);color:var(--text);font-weight:500;}
+    .chip.active{background:var(--accent-dim);border-color:var(--accent);color:var(--text);font-weight:500;}
     .chip:hover:not(.active){border-color:var(--border2);color:var(--text);}
 
     .vendor-sug{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;min-height:0;}
@@ -1889,6 +1889,16 @@ function clearFilters(){
   document.getElementById('tx-search').value='';
   renderTxPage();
 }
+function humanDate(dateStr){
+  const today=ymd(new Date());
+  const yesterday=ymd(new Date(Date.now()-864e5));
+  if(dateStr===today)return'Today';
+  if(dateStr===yesterday)return'Yesterday';
+  const [y,mo,d]=dateStr.split('-').map(Number);
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const todayYear=new Date().getFullYear();
+  return y===todayYear?`${months[mo-1]} ${d}`:`${months[mo-1]} ${d}, ${y}`;
+}
 function txRow(t,actions){
   const fromW=db.wallets.find(w=>w.id===t.fromWallet);
   const toW  =db.wallets.find(w=>w.id===t.toWallet);
@@ -1898,8 +1908,9 @@ function txRow(t,actions){
   else if(t.type==='expense')amtStr=`−₱${fmt(t.amount)}`;
   else{amtStr=`⇄ ₱${fmt(t.amount)}`;if(t.fee>0)amtStr+=` <span style="color:var(--text2);font-size:10px">+₱${fmt(t.fee)} fee</span>`;}
   const vendorStr=t.vendor?` · ${t.vendor}`:'';
-  const instStr=t.installmentMonths>0?` · ${t.installmentMonths}mo installment`:'';
-  const meta=[t.category,wLabel+vendorStr,t.frequency+instStr,t.date].filter(Boolean).join(' · ');
+  const instStr=t.installmentMonths>0?` · ${t.installmentMonths}mo`:'';
+  const freqStr=t.frequency&&t.frequency!=='one-time'?` · ${t.frequency}`:'';
+  const meta=[humanDate(t.date),t.category,wLabel+vendorStr+freqStr+instStr].filter(Boolean).join(' · ');
   return`<div class="tx-row">
     <div class="tx-info"><div class="tx-desc">${t.description||t.category||'—'}</div><div class="tx-meta">${meta}</div></div>
     <div class="tx-amount ${t.type}">${amtStr}</div>
