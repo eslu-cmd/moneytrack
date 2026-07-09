@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    body{margin:0;background:#0a0a12;-webkit-font-smoothing:antialiased;}
+    *{box-sizing:border-box;}
+    ::-webkit-scrollbar{width:6px;height:6px;}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px;}
+  </style>
+</helmet>
+
+<div ref="{{ rootRef }}" style="{{ rootStyle }}">
+
+  <!-- SIDEBAR (desktop) -->
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <!-- MOBILE TOP BAR -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:58px 16px 14px;background:#0d0d16;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;">
+      <span style="font-size:16px;font-weight:800;letter-spacing:-.02em;"><span style="color:#d4af6a;">V</span>ault</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button onClick="{{ togglePrivacy }}" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;border:1px solid rgba(255,255,255,.09);background:transparent;color:#8b8fae;cursor:pointer;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="{{ sidebarDisplay }}width:232px;flex-shrink:0;background:#0d0d16;border-right:1px solid rgba(255,255,255,.07);flex-direction:column;padding:24px 16px;position:sticky;top:0;height:100vh;">
+    <div style="font-size:17px;font-weight:800;letter-spacing:-.02em;padding:0 8px;margin-bottom:32px;">
+      <span style="color:#d4af6a;">V</span>ault
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:2px;">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="5">
+        <button onClick="{{ item.onClick }}" style="{{ item.style }}">
+          <span style="display:flex;width:18px;height:18px;flex-shrink:0;">{{ item.icon }}</span>
+          {{ item.label }}
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;">
+      <button onClick="{{ togglePrivacy }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.09);background:transparent;color:#8b8fae;font-size:12.5px;font-weight:500;cursor:pointer;font-family:inherit;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        {{ privacyLabel }}
+      </button>
+      <button style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 12px;border-radius:10px;border:none;background:#d4af6a;color:#171308;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 2px 16px rgba(212,175,106,.28);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        New Transaction
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div style="{{ mainStyle }}">
+
+    <!-- TOP BAR -->
+    <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-bottom:18px;">
+        <div style="font-size:21px;font-weight:800;letter-spacing:-.02em;">{{ pageTitle }}</div>
+        <div style="font-size:11.5px;color:#5a5e7a;margin-top:2px;">{{ today }}</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:32px;">
+        <div>
+          <div style="font-size:26px;font-weight:800;letter-spacing:-.02em;">{{ pageTitle }}</div>
+          <div style="font-size:12.5px;color:#5a5e7a;margin-top:4px;">{{ today }}</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ DASHBOARD ============ -->
+    <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <!-- HERO -->
+        <div style="{{ heroGridStyle }}">
+          <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:{{ heroCardPad }};position:relative;overflow:hidden;">
+            <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#d4af6a,transparent 70%);"></div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#5a5e7a;margin-bottom:14px;">Total Net Worth</div>
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;">
+              <div>
+                <div style="display:flex;align-items:baseline;gap:6px;">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:#8b8fae;">₱</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:-.03em;line-height:1;font-size:{{ heroAmountSize }};">81,250.50</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:12px;">
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(52,211,153,.12);color:#34d399;border-radius:6px;padding:3px 8px;font-size:11.5px;font-weight:600;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18L18 6M9 6h9v9"/></svg>
+                    +2.4%
+                  </span>
+                  <span style="font-size:12px;color:#5a5e7a;">vs last month</span>
+                </div>
+              </div>
+              <svg width="140" height="46" viewBox="0 0 140 46" style="opacity:.9;">
+                <polyline points="0,36 20,32 40,34 60,24 80,26 100,14 120,18 140,6" fill="none" stroke="#d4af6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <sc-for list="{{ monthStats }}" as="ms" hint-placeholder-count="3">
+              <div style="flex:1;background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5a5e7a;margin-bottom:5px;">{{ ms.label }}</div>
+                  <div style="{{ ms.valueStyle }}">{{ ms.value }}</div>
+                </div>
+                <span style="{{ ms.iconWrap }}">{{ ms.icon }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- FORECAST + DUES -->
+        <div style="{{ forecastDuesGridStyle }}">
+          <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:22px 24px;">
+            <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:#5a5e7a;margin-bottom:16px;">Savings Forecast</div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#8b8fae;padding:5px 0;">
+              <span>Forecasted income</span><span style="font-family:'JetBrains Mono',monospace;color:#f1f1f7;">₱65,000.00</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#fbbf24;padding:5px 0;">
+              <span>Committed expenses</span><span style="font-family:'JetBrains Mono',monospace;">-₱17,548.00</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#f87171;padding:5px 0;">
+              <span>Spent so far</span><span style="font-family:'JetBrains Mono',monospace;">-₱23,652.00</span>
+            </div>
+            <div style="height:1px;background:rgba(255,255,255,.08);margin:10px 0;"></div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;">
+              <span style="font-size:10.5px;font-weight:600;color:#5a5e7a;text-transform:uppercase;letter-spacing:.08em;">Projected leftover</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:#34d399;letter-spacing:-.02em;">₱23,800.00</span>
+            </div>
+          </div>
+
+          <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:22px 24px;">
+            <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:#5a5e7a;margin-bottom:14px;">Upcoming Dues</div>
+            <sc-for list="{{ dues }}" as="due" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                <div style="{{ due.badgeStyle }}">{{ due.days }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:13px;font-weight:500;">{{ due.name }}</div>
+                  <div style="font-size:11px;color:#5a5e7a;margin-top:2px;">{{ due.sub }}</div>
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;">{{ due.amount }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- WALLETS -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:#5a5e7a;">Wallets</div>
+        </div>
+        <div style="{{ walletsGridStyle }}">
+          <sc-for list="{{ wallets }}" as="w" hint-placeholder-count="4">
+            <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <span style="{{ w.iconWrap }}">{{ w.icon }}</span>
+                <span style="font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5a5e7a;">{{ w.type }}</span>
+              </div>
+              <div style="font-size:12.5px;font-weight:600;color:#8b8fae;margin-bottom:6px;">{{ w.name }}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:700;letter-spacing:-.02em;{{ w.balanceColor }}">{{ w.balance }}</div>
+              <sc-if value="{{ w.sub }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:10.5px;color:#5a5e7a;margin-top:4px;">{{ w.sub }}</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- RECENT TX -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.13em;color:#5a5e7a;">Recent Transactions</div>
+          <button onClick="{{ goTransactions }}" style="background:transparent;border:none;color:#8b8fae;font-size:12px;cursor:pointer;font-family:inherit;">View all →</button>
+        </div>
+        <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:6px 20px;">
+          <sc-for list="{{ recentTx }}" as="tx" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+              <span style="{{ tx.badgeStyle }}">{{ tx.icon }}</span>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13.5px;font-weight:500;">{{ tx.desc }}</div>
+                <div style="font-size:11px;color:#5a5e7a;margin-top:2px;">{{ tx.meta }}</div>
+              </div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;{{ tx.amountColor }}">{{ tx.amount }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ TRANSACTIONS ============ -->
+    <sc-if value="{{ isTransactions }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="display:flex;gap:10px;margin-bottom:18px;">
+          <div style="flex:1;position:relative;">
+            <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#5a5e7a;display:flex;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            </span>
+            <input placeholder="Search transactions…" style="width:100%;padding:11px 14px 11px 38px;background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#f1f1f7;font-size:13.5px;outline:none;font-family:inherit;"/>
+          </div>
+          <input type="month" style="padding:11px 14px;background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#8b8fae;font-size:13px;font-family:inherit;"/>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:20px;">
+          <sc-for list="{{ txFilterPills }}" as="p" hint-placeholder-count="4">
+            <button onClick="{{ p.onClick }}" style="{{ p.style }}">{{ p.label }}</button>
+          </sc-for>
+        </div>
+
+        <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:6px 20px;">
+          <sc-for list="{{ allTx }}" as="tx" hint-placeholder-count="10">
+            <div>
+              <sc-if value="{{ tx.groupLabel }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#5a5e7a;padding:16px 0 8px;">{{ tx.groupLabel }}</div>
+              </sc-if>
+              <div style="display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                <span style="{{ tx.badgeStyle }}">{{ tx.icon }}</span>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:13.5px;font-weight:500;">{{ tx.desc }}</div>
+                  <div style="font-size:11px;color:#5a5e7a;margin-top:2px;">{{ tx.meta }}</div>
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;{{ tx.amountColor }}">{{ tx.amount }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ REPORTS ============ -->
+    <sc-if value="{{ isReports }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="display:flex;gap:22px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:24px;">
+          <sc-for list="{{ reportTabs }}" as="t" hint-placeholder-count="3">
+            <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ isBreakdownTab }}" hint-placeholder-val="{{ true }}">
+          <div style="{{ reportsBreakdownGridStyle }}">
+            <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;display:flex;flex-direction:column;align-items:center;">
+              <div style="width:170px;height:170px;border-radius:50%;background:conic-gradient(#d4af6a 0% 34%,#60a5fa 34% 59%,#f87171 59% 79%,#34d399 79% 93%,#5a5e7a 93% 100%);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+                <div style="width:110px;height:110px;border-radius:50%;background:#13131f;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;">₱24,200</div>
+                  <div style="font-size:9px;color:#5a5e7a;text-transform:uppercase;letter-spacing:.08em;margin-top:2px;">This Month</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;width:100%;">
+                <sc-for list="{{ reportCategories }}" as="c" hint-placeholder-count="5">
+                  <div style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:#8b8fae;">
+                    <span style="{{ c.dotStyle }}"></span>
+                    <span style="flex:1;">{{ c.name }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace;color:#f1f1f7;">{{ c.amount }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;">
+              <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:#5a5e7a;margin-bottom:18px;">Category Breakdown</div>
+              <sc-for list="{{ reportCategories }}" as="c" hint-placeholder-count="5">
+                <div style="margin-bottom:16px;">
+                  <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px;">
+                    <span>{{ c.name }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace;color:#8b8fae;">{{ c.amount }} · {{ c.pct }}%</span>
+                  </div>
+                  <div style="height:6px;background:#1e1e2e;border-radius:3px;overflow:hidden;">
+                    <div style="{{ c.barStyle }}"></div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isTrendsTab }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:26px;">
+            <div style="font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:#5a5e7a;margin-bottom:6px;">Income vs Expenses</div>
+            <div style="display:flex;gap:14px;font-size:11.5px;color:#5a5e7a;margin-bottom:24px;">
+              <span style="display:flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:2px;background:#34d399;display:inline-block;"></span>Income</span>
+              <span style="display:flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:2px;background:#f87171;display:inline-block;"></span>Expense</span>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:24px;height:180px;padding:0 8px;">
+              <sc-for list="{{ trendMonths }}" as="m" hint-placeholder-count="6">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;">
+                  <div style="display:flex;align-items:flex-end;gap:4px;height:100%;">
+                    <div style="width:16px;background:#34d399;border-radius:3px 3px 0 0;height:{{ m.incomeH }}%;"></div>
+                    <div style="width:16px;background:#f87171;border-radius:3px 3px 0 0;height:{{ m.expenseH }}%;"></div>
+                  </div>
+                  <div style="font-size:10.5px;color:#5a5e7a;margin-top:10px;">{{ m.m }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isInsightsTab }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <sc-for list="{{ recommendations }}" as="r" hint-placeholder-count="3">
+              <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px;display:flex;gap:14px;align-items:flex-start;">
+                <span style="{{ r.tagStyle }}">{{ r.tagIcon }}</span>
+                <div>
+                  <div style="font-size:13.5px;font-weight:600;margin-bottom:4px;">{{ r.title }}</div>
+                  <div style="font-size:12.5px;color:#8b8fae;line-height:1.5;">{{ r.detail }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ============ BUDGET ============ -->
+    <sc-if value="{{ isBudget }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="display:flex;gap:22px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:24px;overflow-x:auto;">
+          <sc-for list="{{ budgetTabs }}" as="t" hint-placeholder-count="5">
+            <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ isBudgetOverview }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="{{ budgetStatsGridStyle }}">
+              <sc-for list="{{ budgetStats }}" as="s" hint-placeholder-count="4">
+                <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 18px;">
+                  <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#5a5e7a;margin-bottom:8px;">{{ s.label }}</div>
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;letter-spacing:-.02em;{{ s.color }}">{{ s.value }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:22px 24px;">
+              <sc-for list="{{ budgetItems }}" as="b" hint-placeholder-count="4">
+                <div style="padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span style="font-size:13.5px;font-weight:500;white-space:nowrap;">{{ b.name }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#8b8fae;white-space:nowrap;flex-shrink:0;margin-left:12px;">{{ b.spent }} / {{ b.total }}</span>
+                  </div>
+                  <div style="height:6px;background:#1e1e2e;border-radius:3px;overflow:hidden;">
+                    <div style="{{ b.barStyle }}"></div>
+                  </div>
+                  <div style="{{ b.statusStyle }}">{{ b.statusText }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isBudgetGoals }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ goalsGridStyle }}">
+            <sc-for list="{{ goals }}" as="g" hint-placeholder-count="2">
+              <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;">
+                <div style="font-size:14.5px;font-weight:600;margin-bottom:3px;">{{ g.name }}</div>
+                <div style="font-size:11.5px;color:#5a5e7a;margin-bottom:16px;">{{ g.sub }}</div>
+                <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:8px;">
+                  <span style="font-family:'JetBrains Mono',monospace;color:#f1f1f7;font-weight:600;">{{ g.current }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;color:#5a5e7a;">of {{ g.target }}</span>
+                </div>
+                <div style="height:7px;background:#1e1e2e;border-radius:4px;overflow:hidden;">
+                  <div style="height:100%;border-radius:4px;background:#d4af6a;width:{{ g.pct }}%;"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isBudgetReminders }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:8px 24px;">
+            <sc-for list="{{ dues }}" as="due" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                <div style="{{ due.badgeStyle }}">{{ due.days }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:13.5px;font-weight:500;">{{ due.name }}</div>
+                  <div style="font-size:11.5px;color:#5a5e7a;margin-top:2px;">{{ due.sub }}</div>
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:13.5px;font-weight:600;">{{ due.amount }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isBudgetManage }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:8px 24px;">
+            <sc-for list="{{ budgetItems }}" as="b" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                <div>
+                  <div style="font-size:13.5px;font-weight:500;">{{ b.name }}</div>
+                  <div style="font-size:11.5px;color:#5a5e7a;margin-top:2px;">Monthly limit</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:14px;">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:13.5px;color:#8b8fae;">{{ b.total }}</span>
+                  <button style="background:#181826;border:1px solid rgba(255,255,255,.1);color:#8b8fae;border-radius:8px;padding:6px 12px;font-size:11.5px;cursor:pointer;font-family:inherit;">Edit</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isBudgetRecs }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <sc-for list="{{ recommendations }}" as="r" hint-placeholder-count="3">
+              <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px;display:flex;gap:14px;align-items:flex-start;">
+                <span style="{{ r.tagStyle }}">{{ r.tagIcon }}</span>
+                <div>
+                  <div style="font-size:13.5px;font-weight:600;margin-bottom:4px;">{{ r.title }}</div>
+                  <div style="font-size:12.5px;color:#8b8fae;line-height:1.5;">{{ r.detail }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ============ SETTINGS ============ -->
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:640px;">
+        <div style="margin-bottom:30px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#5a5e7a;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08);">Savings Forecast</div>
+          <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:13px;font-weight:500;">Forecasted Monthly Income</div>
+              <div style="font-size:11.5px;color:#5a5e7a;margin-top:2px;">Your expected total income each month</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;background:#181826;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 12px;">
+              <span style="font-family:'JetBrains Mono',monospace;color:#8b8fae;font-size:13px;">₱</span>
+              <input value="65,000.00" style="width:100px;background:transparent;border:none;color:#f1f1f7;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;text-align:right;"/>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:30px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#5a5e7a;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08);">Committed Monthly Expenses</div>
+          <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:6px 20px;">
+            <sc-for list="{{ committed }}" as="c" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+                <div>
+                  <div style="font-size:13px;font-weight:500;">{{ c.name }}</div>
+                  <div style="font-size:11px;color:#5a5e7a;margin-top:2px;">{{ c.sub }}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#8b8fae;">{{ c.amount }}</span>
+                  <span style="display:inline-flex;width:34px;height:19px;border-radius:10px;background:#d4af6a;align-items:center;padding:2px;"><span style="width:15px;height:15px;border-radius:50%;background:#171308;margin-left:auto;"></span></span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:#5a5e7a;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08);">Data</div>
+          <div style="background:#13131f;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:6px 20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+              <div><div style="font-size:13px;font-weight:500;">Export full backup</div><div style="font-size:11px;color:#5a5e7a;margin-top:2px;">Download all data as .json</div></div>
+              <button style="background:#181826;border:1px solid rgba(255,255,255,.1);color:#8b8fae;border-radius:8px;padding:7px 13px;font-size:11.5px;cursor:pointer;font-family:inherit;">Export JSON</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 0;">
+              <div><div style="font-size:13px;font-weight:500;">Restore from backup</div><div style="font-size:11px;color:#f87171;margin-top:2px;">Overwrites all current data</div></div>
+              <button style="background:#181826;border:1px solid rgba(255,255,255,.1);color:#8b8fae;border-radius:8px;padding:7px 13px;font-size:11.5px;cursor:pointer;font-family:inherit;">Import</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:0;left:0;right:0;display:flex;background:#0d0d16;border-top:1px solid rgba(255,255,255,.08);z-index:95;padding-bottom:env(safe-area-inset-bottom);">
+      <sc-for list="{{ bottomNavItems }}" as="item" hint-placeholder-count="5">
+        <button onClick="{{ item.onClick }}" style="{{ item.style }}">
+          <span style="display:flex;width:20px;height:20px;">{{ item.icon }}</span>
+          {{ item.label }}
+        </button>
+      </sc-for>
+    </div>
+    <button style="position:fixed;right:18px;bottom:76px;width:52px;height:52px;border-radius:50%;background:#d4af6a;color:#171308;border:none;font-size:24px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(212,175,106,.4);display:flex;align-items:center;justify-content:center;z-index:96;">+</button>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+class Component extends DCLogic {
+  state = { page: 'dashboard', reportTab: 'breakdown', budgetTab: 'overview', privacyOn: false, txFilter: 'all', isMobile: false };
+  rootRef = React.createRef();
+
+  componentDidMount() {
+    if (!this.rootRef.current || typeof ResizeObserver === 'undefined') return;
+    this._ro = new ResizeObserver((entries) => {
+      const w = entries[0].contentRect.width;
+      const isMobile = w < 700;
+      if (isMobile !== this.state.isMobile) this.setState({ isMobile });
+    });
+    this._ro.observe(this.rootRef.current);
+  }
+
+  componentWillUnmount() {
+    if (this._ro) this._ro.disconnect();
+  }
+
+  icon(name, color) {
+    const c = color || 'currentColor';
+    const paths = {
+      home: '<path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1v-9.5z"/><path d="M9 21V13h6v8"/>',
+      swap: '<path d="M7 16V4M7 4L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>',
+      chart: '<rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/>',
+      target: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+      gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>',
+      bank: '<path d="M3 21h18M4 21V10l8-6 8 6v11M9 21v-6h6v6"/>',
+      wallet: '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 18h6"/>',
+      cash: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>',
+      credit: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+      arrow: '<path d="M12 5v14M5 12l7 7 7-7"/>',
+      up: '<path d="M6 18L18 6M9 6h9v9"/>',
+      down: '<path d="M18 6L6 18M15 18H6V9"/>',
+      bolt: '<path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/>',
+      transport: '<circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 17H3v-4l2-5h12l3 5v4h-2M5 13h14"/>',
+      food: '<path d="M3 2v7a4 4 0 004 4v9M7 2v13M11 2v7a4 4 0 01-4 4M17 2c-2 2-2 5-2 8a3 3 0 003 3v9"/>',
+      bill: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+      shopping: '<path d="M6 8V6a4 4 0 118 0v2M4 8h16l-1.5 12.5a1 1 0 01-1 .9H6.5a1 1 0 01-1-.9L4 8z"/>',
+      transfer2: '<path d="M17 2l4 4-4 4M3 6h18M7 22l-4-4 4-4M21 18H3"/>'
+    };
+    return { __html: '<svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="' + c + '" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">' + (paths[name]||'') + '</svg>' };
+  }
+
+  navBtnStyle(active) {
+    return 'display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;border:none;background:' + (active ? 'rgba(212,175,106,.12)' : 'transparent') + ';color:' + (active ? '#d4af6a' : '#8b8fae') + ';font-size:13px;font-weight:' + (active?600:500) + ';cursor:pointer;font-family:inherit;text-align:left;width:100%;';
+  }
+
+  renderVals() {
+    const R = React.createElement;
+    const page = this.state.page;
+    const setPage = (p) => this.setState({ page: p });
+    const titles = { dashboard: 'Dashboard', transactions: 'Transactions', reports: 'Reports', budget: 'Budget', settings: 'Settings' };
+
+    const navDefs = [
+      ['dashboard','Dashboard','home'], ['transactions','Transactions','swap'],
+      ['reports','Reports','chart'], ['budget','Budget','target'], ['settings','Settings','gear']
+    ];
+    const navItems = navDefs.map(([key,label,ic]) => ({
+      label, icon: R('span', { dangerouslySetInnerHTML: this.icon(ic, page===key?'#d4af6a':'#8b8fae') }),
+      onClick: () => setPage(key), style: this.navBtnStyle(page===key)
+    }));
+
+    const badge = (ic, color, bg) => R('span', { style: { display:'flex', width:'34px', height:'34px', borderRadius:'10px', background:bg, color, alignItems:'center', justifyContent:'center', flexShrink:0, padding:'8px' }, dangerouslySetInnerHTML: this.icon(ic, color) });
+
+    const wallets = [
+      { name:'BDO Savings', type:'Bank', balance:'₱84,320.50', balanceColor:'color:#f1f1f7;', icon: badge('bank','#60a5fa','rgba(96,165,250,.12)') },
+      { name:'GCash', type:'E-Wallet', balance:'₱12,480.00', balanceColor:'color:#f1f1f7;', icon: badge('wallet','#d4af6a','rgba(212,175,106,.12)') },
+      { name:'Cash on Hand', type:'Cash', balance:'₱3,200.00', balanceColor:'color:#f1f1f7;', icon: badge('cash','#34d399','rgba(52,211,153,.12)') },
+      { name:'BPI Credit Card', type:'Credit', balance:'-₱18,750.00', balanceColor:'color:#f87171;', sub:'of ₱50,000 limit', icon: badge('credit','#f87171','rgba(248,113,133,.12)') }
+    ];
+
+    const txAmountColor = (cls) => cls==='income' ? 'color:#34d399;' : cls==='transfer' ? 'color:#d4af6a;' : 'color:#f87171;';
+    const txDefs = [
+      ['Today','Grab','Transport · BDO Savings','-₱185.00','expense','transport'],
+      ['','Coffee — Starbucks','Food & Drink · GCash','-₱210.00','expense','food'],
+      ['Yesterday','Salary — July','Income · BDO Savings','+₱65,000.00','income','bolt'],
+      ['','Meralco','Utilities · BDO Savings · Committed','-₱3,420.00','expense','bill'],
+      ['','SM Supermarket','Groceries · GCash','-₱2,150.00','expense','food'],
+      ['Jul 8','Transfer to GCash','BDO Savings → GCash','₱5,000.00','transfer','transfer2'],
+      ['','Netflix','Subscriptions · BPI Credit · Committed','-₱549.00','expense','bill'],
+      ['Jul 6','Freelance Payment','Income · GCash','+₱8,500.00','income','bolt'],
+      ['','Jollibee','Food & Drink · Cash on Hand','-₱340.00','expense','food'],
+      ['Jul 4','Shopee Order','Shopping · BPI Credit','-₱1,890.00','expense','shopping']
+    ];
+    const mkTx = (d) => ({ groupLabel:d[0], desc:d[1], meta:d[2], amount:d[3], amountColor:txAmountColor(d[4]),
+      badgeStyle:{display:'flex',width:'34px',height:'34px',borderRadius:'10px',background: d[4]==='income'?'rgba(52,211,153,.12)':d[4]==='transfer'?'rgba(212,175,106,.12)':'rgba(255,255,255,.06)',color: d[4]==='income'?'#34d399':d[4]==='transfer'?'#d4af6a':'#8b8fae',alignItems:'center',justifyContent:'center',flexShrink:0,padding:'8px'},
+      icon: R('span',{style:{width:'100%',height:'100%'},dangerouslySetInnerHTML:this.icon(d[5], d[4]==='income'?'#34d399':d[4]==='transfer'?'#d4af6a':'#8b8fae')}) });
+    const allTxRaw = txDefs.map(mkTx);
+    const allTx = allTxRaw.map(t => ({ ...t, badgeStyle: Object.entries(t.badgeStyle).map(([k,v])=>k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())+':'+v).join(';') }));
+    const recentTx = allTx.slice(0,5);
+
+    const txFilterPills = ['all','income','expense','transfer'].map(f => ({
+      label: f==='all'?'All':f[0].toUpperCase()+f.slice(1),
+      onClick: () => this.setState({ txFilter: f }),
+      style: 'padding:7px 15px;border-radius:20px;border:1px solid ' + (this.state.txFilter===f?'#d4af6a':'rgba(255,255,255,.1)') + ';background:' + (this.state.txFilter===f?'rgba(212,175,106,.12)':'transparent') + ';color:' + (this.state.txFilter===f?'#d4af6a':'#8b8fae') + ';font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;'
+    }));
+
+    const dueBadge = (days, color, bg) => 'min-width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;background:'+bg+';color:'+color+';';
+    const dues = [
+      { name:'Internet Bill', sub:'PLDT · due tomorrow', amount:'₱1,999.00', days:'1d', badgeStyle: dueBadge('1d','#f87171','rgba(248,113,133,.12)') },
+      { name:'Netflix', sub:'Subscription · due in 3 days', amount:'₱549.00', days:'3d', badgeStyle: dueBadge('3d','#fbbf24','rgba(251,191,36,.12)') },
+      { name:'Credit Card Payment', sub:'BPI · due in 12 days', amount:'₱18,750.00', days:'12d', badgeStyle: dueBadge('12d','#34d399','rgba(52,211,153,.12)') }
+    ];
+
+    const monthStats = [
+      { label:'Income', value:'₱65,000.00', valueStyle:'font-family:\'JetBrains Mono\',monospace;font-size:19px;font-weight:700;color:#34d399;', iconWrap:{}, icon: badge('up','#34d399','rgba(52,211,153,.12)') },
+      { label:'Expenses', value:'₱41,200.00', valueStyle:'font-family:\'JetBrains Mono\',monospace;font-size:19px;font-weight:700;color:#f87171;', icon: badge('down','#f87171','rgba(248,113,133,.12)') },
+      { label:'Net Saved', value:'₱23,800.00', valueStyle:'font-family:\'JetBrains Mono\',monospace;font-size:19px;font-weight:700;color:#d4af6a;', icon: badge('target','#d4af6a','rgba(212,175,106,.12)') }
+    ].map(m => ({ ...m, iconWrap: '' }));
+
+    const reportTab = this.state.reportTab;
+    const reportTabs = [['breakdown','Breakdown'],['trends','Trends'],['insights','Insights']].map(([key,label]) => ({
+      label, onClick: () => this.setState({ reportTab: key }),
+      style: 'background:transparent;border:none;padding:12px 0;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;color:' + (reportTab===key?'#f1f1f7':'#5a5e7a') + ';border-bottom:2px solid ' + (reportTab===key?'#d4af6a':'transparent') + ';margin-bottom:-1px;'
+    }));
+
+    const catDefs = [['Food & Dining','₱8,200',34,'#d4af6a'],['Transport','₱6,100',25,'#60a5fa'],['Shopping','₱4,800',20,'#f87171'],['Bills & Utilities','₱3,420',14,'#34d399'],['Other','₱1,680',7,'#8b8fae']];
+    const reportCategories = catDefs.map(([name,amount,pct,color]) => ({ name, amount, pct, dotStyle:'width:8px;height:8px;border-radius:2px;background:'+color+';display:inline-block;', barStyle:'height:100%;border-radius:3px;background:'+color+';width:'+pct+'%;' }));
+
+    const trendMonths = [['Feb',70,50],['Mar',75,55],['Apr',68,60],['May',80,52],['Jun',78,58],['Jul',82,50]].map(([m,i,e]) => ({ m, incomeH:i, expenseH:e }));
+
+    const recDefs = [
+      ['Shopping spend up 36% vs last month','You spent ₱1,800 more on Shopping than your 3-month average.','up','#fbbf24','rgba(251,191,36,.12)'],
+      ['Transport trending down','Down 12% vs last month — nice work cutting rides.','down','#34d399','rgba(52,211,153,.12)'],
+      ['Subscriptions steady','₱1,200/mo across 3 subscriptions, unchanged for 4 months.','up','#60a5fa','rgba(96,165,250,.12)']
+    ];
+    const recommendations = recDefs.map(([title,detail,ic,color,bg]) => ({ title, detail, tagIcon: R('span',{style:{width:'100%',height:'100%'},dangerouslySetInnerHTML:this.icon(ic,color)}), tagStyle:'display:flex;width:32px;height:32px;border-radius:9px;background:'+bg+';color:'+color+';align-items:center;justify-content:center;flex-shrink:0;padding:7px;' }));
+
+    const budgetTab = this.state.budgetTab;
+    const budgetTabs = [['overview','Overview'],['manage','Manage'],['goals','Goals'],['reminders','Reminders'],['recommendations','Recommendations']].map(([key,label]) => ({
+      label, onClick: () => this.setState({ budgetTab: key }),
+      style: 'background:transparent;border:none;padding:12px 0;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap;color:' + (budgetTab===key?'#f1f1f7':'#5a5e7a') + ';border-bottom:2px solid ' + (budgetTab===key?'#d4af6a':'transparent') + ';margin-bottom:-1px;'
+    }));
+
+    const budgetStats = [
+      { label:'Budgeted', value:'₱20,500', color:'color:#f1f1f7;' },
+      { label:'Spent', value:'₱20,700', color:'color:#f87171;' },
+      { label:'Remaining', value:'-₱200', color:'color:#f87171;' },
+      { label:'Savings Rate', value:'36.6%', color:'color:#34d399;' }
+    ];
+
+    const budDefs = [
+      ['Food & Dining','₱8,200','₱10,000',82,'ok'],
+      ['Transport','₱4,500','₱4,000',112,'over'],
+      ['Subscriptions','₱1,200','₱1,500',80,'ok'],
+      ['Shopping','₱6,800','₱5,000',136,'over']
+    ];
+    const statusColor = { ok:'#34d399', warn:'#fbbf24', over:'#f87171' };
+    const budgetItems = budDefs.map(([name,spent,total,pct,status]) => ({
+      name, spent, total,
+      barStyle:'height:100%;border-radius:3px;background:'+statusColor[status]+';width:'+Math.min(pct,100)+'%;',
+      statusStyle:'font-size:11px;margin-top:6px;font-weight:500;color:'+statusColor[status]+';',
+      statusText: status==='over' ? ((pct - 100) + '% over') : (pct + '% used')
+    }));
+
+    const goals = [
+      { name:'Emergency Fund', sub:'Target: Dec 2026', current:'₱45,000', target:'₱100,000', pct:45 },
+      { name:'New Laptop', sub:'Target: Oct 2026', current:'₱18,000', target:'₱60,000', pct:30 }
+    ];
+
+    const committed = [
+      { name:'Rent', sub:'Housing', amount:'₱15,000.00' },
+      { name:'Internet Bill', sub:'PLDT · Utilities', amount:'₱1,999.00' },
+      { name:'Netflix', sub:'Subscriptions', amount:'₱549.00' }
+    ];
+
+    const isMobile = this.state.isMobile;
+    const bottomNavItems = navDefs.map(([key,label,ic]) => ({
+      label, icon: R('span', { style:{width:'100%',height:'100%'}, dangerouslySetInnerHTML: this.icon(ic, page===key?'#d4af6a':'#5a5e7a') }),
+      onClick: () => setPage(key),
+      style: 'display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;padding:8px 4px;border:none;background:transparent;cursor:pointer;font-family:inherit;color:' + (page===key?'#d4af6a':'#5a5e7a') + ';font-size:10px;font-weight:600;'
+    }));
+
+    const rootStyle = 'display:flex;flex-direction:' + (isMobile?'column':'row') + ';min-height:100vh;background:#0a0a12;font-family:\'Inter\',-apple-system,sans-serif;color:#f1f1f7;';
+    const sidebarDisplay = isMobile ? 'display:none;' : 'display:flex;';
+    const isDesktop = !isMobile;
+    const mainStyle = isMobile
+      ? 'flex:1;min-width:0;padding:20px 16px ' + (this.state.page==='dashboard'?'96px':'88px') + ';'
+      : 'flex:1;min-width:0;padding:36px 44px 64px;max-width:1180px;';
+    const heroGridStyle = 'display:grid;grid-template-columns:' + (isMobile?'1fr':'1.5fr 1fr') + ';gap:16px;margin-bottom:20px;';
+    const heroCardPad = isMobile ? '22px 20px' : '28px 30px';
+    const heroAmountSize = isMobile ? '40px' : '52px';
+    const forecastDuesGridStyle = 'display:grid;grid-template-columns:' + (isMobile?'1fr':'1fr 1fr') + ';gap:16px;margin-bottom:28px;';
+    const walletsGridStyle = 'display:grid;grid-template-columns:repeat(' + (isMobile?2:4) + ',1fr);gap:12px;margin-bottom:28px;';
+    const reportsBreakdownGridStyle = 'display:grid;grid-template-columns:' + (isMobile?'1fr':'280px 1fr') + ';gap:24px;';
+    const budgetStatsGridStyle = 'display:grid;grid-template-columns:repeat(' + (isMobile?2:4) + ',1fr);gap:12px;margin-bottom:20px;';
+    const goalsGridStyle = 'display:grid;grid-template-columns:' + (isMobile?'1fr':'1fr 1fr') + ';gap:14px;';
+
+    return {
+      pageTitle: titles[page], today: 'Friday, July 10, 2026',
+      isDashboard: page==='dashboard', isTransactions: page==='transactions', isReports: page==='reports', isBudget: page==='budget', isSettings: page==='settings',
+      navItems, goTransactions: () => setPage('transactions'),
+      rootRef: this.rootRef, isMobile, isDesktop, bottomNavItems, rootStyle, sidebarDisplay, mainStyle, heroGridStyle, heroCardPad, heroAmountSize,
+      forecastDuesGridStyle, walletsGridStyle, reportsBreakdownGridStyle, budgetStatsGridStyle, goalsGridStyle,
+      openTxModal: () => {},
+      privacyLabel: this.state.privacyOn ? 'Show Balances' : 'Hide Balances',
+      togglePrivacy: () => this.setState(s => ({ privacyOn: !s.privacyOn })),
+      wallets, monthStats, dues, recentTx, allTx, txFilterPills,
+      reportTabs, isBreakdownTab: reportTab==='breakdown', isTrendsTab: reportTab==='trends', isInsightsTab: reportTab==='insights',
+      reportCategories, trendMonths, recommendations,
+      budgetTabs, isBudgetOverview: budgetTab==='overview', isBudgetManage: budgetTab==='manage', isBudgetGoals: budgetTab==='goals', isBudgetReminders: budgetTab==='reminders', isBudgetRecs: budgetTab==='recommendations',
+      budgetStats, budgetItems, goals, committed
+    };
+  }
+}
+
+</script>
+</body>
+</html>
