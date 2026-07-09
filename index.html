@@ -976,6 +976,34 @@ let chartCat=null,chartFreq=null,chartTrend=null;
 let editingTxId=null,adjustingWalletId=null,editingGoalId=null,editingReminderId=null;
 let privacyMode=false;
 
+// ── SUPABASE SYNC ─────────────────────────────────────────────────────────────
+const SB_URL='https://sqmostwntbyixyrmzpns.supabase.co';
+const SB_KEY='sb_publishable_o776AFUV3xIuRSw9Stl1wA_JL3GFgEF';
+const SB_HDR={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+
+let _syncTimer=null;
+function scheduleSync(){clearTimeout(_syncTimer);_syncTimer=setTimeout(pushToSupabase,2000);}
+
+async function pushToSupabase(){
+  try{
+    await fetch(SB_URL+'/rest/v1/vault_data?id=eq.1',{
+      method:'PATCH',
+      headers:{...SB_HDR,'Prefer':'return=minimal'},
+      body:JSON.stringify({data:db,updated_at:new Date().toISOString()})
+    });
+  }catch(e){}
+}
+
+async function pullFromSupabase(){
+  try{
+    const res=await fetch(SB_URL+'/rest/v1/vault_data?id=eq.1&select=data,updated_at',{headers:SB_HDR});
+    if(!res.ok)return null;
+    const rows=await res.json();
+    if(!rows.length||!rows[0].data||!rows[0].data.wallets)return null;
+    return rows[0].data;
+  }catch(e){return null;}
+}
+
 // ── PERSIST ───────────────────────────────────────────────────────────────────
 function load(){
   try{const s=localStorage.getItem('mt_db');if(s)db=JSON.parse(s);}catch(e){}
@@ -985,12 +1013,21 @@ function load(){
 }
 function save(){
   localStorage.setItem('mt_db',JSON.stringify(db));
-  if('caches'in window)caches.open('vault-v2').then(c=>c.put('vault-db',new Response(JSON.stringify(db),{headers:{'Content-Type':'application/json'}})));
+  if('caches'in window)caches.open('vault-v3').then(c=>c.put('vault-db',new Response(JSON.stringify(db),{headers:{'Content-Type':'application/json'}})));
+  scheduleSync();
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-function init(){
+async function init(){
   load();
+  const remote=await pullFromSupabase();
+  if(remote&&remote.wallets){
+    db=remote;
+    db.expCats=db.expCats||[];db.incCats=db.incCats||[];
+    db.goals=db.goals||[];db.reminders=db.reminders||[];
+    db.settings=db.settings||{forecastedIncome:0};
+    localStorage.setItem('mt_db',JSON.stringify(db));
+  }
   if(!db.wallets.length){document.getElementById('onboarding').classList.remove('hidden');}
   else startApp();
 }
