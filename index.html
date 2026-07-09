@@ -378,8 +378,23 @@
 </head>
 <body>
 
+<!-- AUTH SCREEN -->
+<div id="auth-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center;padding:24px;">
+  <div style="width:100%;max-width:380px;">
+    <div style="font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--text);margin-bottom:6px;"><span style="color:var(--accent)">V</span>ault</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:32px;">Sign in to access your data</div>
+    <div id="auth-error" style="display:none;background:var(--red-dim);border:1px solid var(--red);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--red);margin-bottom:16px;"></div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <input id="auth-email" type="email" placeholder="Email" autocomplete="email" style="width:100%;box-sizing:border-box;padding:13px 16px;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;" />
+      <input id="auth-password" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;box-sizing:border-box;padding:13px 16px;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;" />
+      <button onclick="doSignIn()" id="auth-signin-btn" style="padding:14px;background:var(--accent);color:#171308;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 2px 16px rgba(212,175,106,.28);">Sign In</button>
+      <button onclick="doSignUp()" id="auth-signup-btn" style="padding:14px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Create Account</button>
+    </div>
+  </div>
+</div>
+
 <!-- ONBOARDING -->
-<div class="onboarding" id="onboarding">
+<div class="onboarding hidden" id="onboarding">
   <div class="ob-inner">
     <div class="ob-brand"><span>V</span>ault</div>
     <div class="ob-headline">Every peso.<br>Accounted for.</div>
@@ -462,6 +477,10 @@
       <button class="sidebar-new-tx" onclick="openModal('tx')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
         New Transaction
+      </button>
+      <button onclick="signOut()" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;border:none;background:transparent;color:var(--text3);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;width:100%;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Sign Out
       </button>
     </div>
   </aside>
@@ -976,27 +995,132 @@ let chartCat=null,chartFreq=null,chartTrend=null;
 let editingTxId=null,adjustingWalletId=null,editingGoalId=null,editingReminderId=null;
 let privacyMode=false;
 
-// ── SUPABASE SYNC ─────────────────────────────────────────────────────────────
+// ── SUPABASE AUTH + SYNC ──────────────────────────────────────────────────────
 const SB_URL='https://sqmostwntbyixyrmzpns.supabase.co';
 const SB_KEY='sb_publishable_o776AFUV3xIuRSw9Stl1wA_JL3GFgEF';
-const SB_HDR={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+
+let sbToken=null,sbRefresh=null,sbUserId=null;
+
+function sbHdr(){
+  return{'apikey':SB_KEY,'Authorization':'Bearer '+(sbToken||SB_KEY),'Content-Type':'application/json'};
+}
+
+function loadStoredAuth(){
+  try{sbToken=localStorage.getItem('sb_token');sbRefresh=localStorage.getItem('sb_refresh');sbUserId=localStorage.getItem('sb_uid');}catch(e){}
+}
+function storeAuth(token,refresh,uid){
+  sbToken=token;sbRefresh=refresh;sbUserId=uid;
+  localStorage.setItem('sb_token',token);
+  localStorage.setItem('sb_refresh',refresh);
+  localStorage.setItem('sb_uid',uid);
+}
+function clearAuth(){
+  sbToken=sbRefresh=sbUserId=null;
+  ['sb_token','sb_refresh','sb_uid'].forEach(k=>localStorage.removeItem(k));
+}
+function tokenExpired(){
+  if(!sbToken)return true;
+  try{const p=JSON.parse(atob(sbToken.split('.')[1]));return Date.now()/1000>p.exp-60;}catch(e){return true;}
+}
+async function refreshAuth(){
+  if(!sbRefresh)return false;
+  try{
+    const res=await fetch(SB_URL+'/auth/v1/token?grant_type=refresh_token',{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({refresh_token:sbRefresh})
+    });
+    if(!res.ok)return false;
+    const d=await res.json();
+    storeAuth(d.access_token,d.refresh_token,d.user.id);
+    return true;
+  }catch(e){return false;}
+}
+async function ensureAuth(){
+  if(!sbToken)return false;
+  if(tokenExpired())return await refreshAuth();
+  return true;
+}
+
+function showAuthScreen(err){
+  const as=document.getElementById('auth-screen');
+  as.style.display='flex';
+  if(err){const e=document.getElementById('auth-error');e.textContent=err;e.style.display='block';}
+}
+function hideAuthScreen(){document.getElementById('auth-screen').style.display='none';}
+
+async function doSignIn(){
+  const email=document.getElementById('auth-email').value.trim();
+  const pw=document.getElementById('auth-password').value;
+  const btn=document.getElementById('auth-signin-btn');
+  if(!email||!pw)return showAuthScreen('Enter your email and password.');
+  btn.textContent='Signing in…';btn.disabled=true;
+  try{
+    const res=await fetch(SB_URL+'/auth/v1/token?grant_type=password',{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email,password:pw})
+    });
+    const d=await res.json();
+    if(!res.ok)throw new Error(d.error_description||d.message||'Sign in failed');
+    storeAuth(d.access_token,d.refresh_token,d.user.id);
+    hideAuthScreen();
+    await loadAndStart();
+  }catch(e){showAuthScreen(e.message);}
+  finally{btn.textContent='Sign In';btn.disabled=false;}
+}
+
+async function doSignUp(){
+  const email=document.getElementById('auth-email').value.trim();
+  const pw=document.getElementById('auth-password').value;
+  const btn=document.getElementById('auth-signup-btn');
+  if(!email||!pw)return showAuthScreen('Enter your email and password.');
+  if(pw.length<6)return showAuthScreen('Password must be at least 6 characters.');
+  btn.textContent='Creating account…';btn.disabled=true;
+  try{
+    const res=await fetch(SB_URL+'/auth/v1/signup',{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email,password:pw})
+    });
+    const d=await res.json();
+    if(!res.ok)throw new Error(d.error_description||d.message||'Sign up failed');
+    if(d.access_token){
+      storeAuth(d.access_token,d.refresh_token,d.user.id);
+      hideAuthScreen();
+      await loadAndStart();
+    }else{
+      showAuthScreen('Check your email to confirm your account, then sign in.');
+    }
+  }catch(e){showAuthScreen(e.message);}
+  finally{btn.textContent='Create Account';btn.disabled=false;}
+}
+
+async function signOut(){
+  try{await fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:sbHdr()});}catch(e){}
+  clearAuth();
+  localStorage.removeItem('mt_db');
+  location.reload();
+}
 
 let _syncTimer=null;
 function scheduleSync(){clearTimeout(_syncTimer);_syncTimer=setTimeout(pushToSupabase,2000);}
 
 async function pushToSupabase(){
+  if(!await ensureAuth())return;
   try{
-    await fetch(SB_URL+'/rest/v1/vault_data?id=eq.1',{
-      method:'PATCH',
-      headers:{...SB_HDR,'Prefer':'return=minimal'},
-      body:JSON.stringify({data:db,updated_at:new Date().toISOString()})
+    await fetch(SB_URL+'/rest/v1/vault_data',{
+      method:'POST',
+      headers:{...sbHdr(),'Prefer':'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify({user_id:sbUserId,data:db,updated_at:new Date().toISOString()})
     });
   }catch(e){}
 }
 
 async function pullFromSupabase(){
+  if(!await ensureAuth())return null;
   try{
-    const res=await fetch(SB_URL+'/rest/v1/vault_data?id=eq.1&select=data,updated_at',{headers:SB_HDR});
+    const res=await fetch(SB_URL+'/rest/v1/vault_data?user_id=eq.'+sbUserId+'&select=data',{headers:sbHdr()});
     if(!res.ok)return null;
     const rows=await res.json();
     if(!rows.length||!rows[0].data||!rows[0].data.wallets)return null;
@@ -1018,7 +1142,7 @@ function save(){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-async function init(){
+async function loadAndStart(){
   load();
   const remote=await pullFromSupabase();
   if(remote&&remote.wallets){
@@ -1030,6 +1154,14 @@ async function init(){
   }
   if(!db.wallets.length){document.getElementById('onboarding').classList.remove('hidden');}
   else startApp();
+}
+
+async function init(){
+  loadStoredAuth();
+  if(!sbToken){showAuthScreen();return;}
+  const ok=await ensureAuth();
+  if(!ok){clearAuth();showAuthScreen();return;}
+  await loadAndStart();
 }
 function startApp(){
   document.getElementById('onboarding').classList.add('hidden');
