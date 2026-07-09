@@ -1002,7 +1002,7 @@ const SB_KEY='sb_publishable_o776AFUV3xIuRSw9Stl1wA_JL3GFgEF';
 let sbToken=null,sbRefresh=null,sbUserId=null;
 
 function sbHdr(){
-  return{'apikey':SB_KEY,'Authorization':'Bearer '+(sbToken||SB_KEY),'Content-Type':'application/json'};
+  return{'apikey':SB_KEY,'Authorization':'Bearer '+sbToken,'Content-Type':'application/json'};
 }
 
 function loadStoredAuth(){
