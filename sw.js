@@ -1,4 +1,4 @@
-const CACHE = 'vault-v2';
+const CACHE = 'vault-v3';
 
 const PRECACHE = [
   './',
