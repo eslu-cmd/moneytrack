@@ -687,6 +687,10 @@
             <input type="file" id="import-file2" accept=".json" style="display:none" onchange="importJSON(this)" />
             <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file2').click()">⬆ Import</button>
           </div>
+          <div class="setting-row">
+            <div><div class="setting-label" style="color:var(--red)">Reset all data</div><div class="setting-sub" style="color:var(--red)">Permanently deletes everything</div></div>
+            <button class="btn btn-danger btn-sm" onclick="resetAllData()">Reset</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2440,6 +2444,20 @@ function importJSON(input){
   };
   reader.readAsText(file);
   input.value='';
+}
+
+async function resetAllData(){
+  if(!confirm('This will permanently delete ALL your wallets, transactions, budgets, and goals.\n\nThis cannot be undone. Continue?'))return;
+  if(!confirm('Are you sure? Everything will be wiped.'))return;
+  localStorage.removeItem('mt_db');
+  if(await ensureAuth()){
+    try{
+      await fetch(SB_URL+'/rest/v1/vault_data?user_id=eq.'+sbUserId,{
+        method:'DELETE',headers:sbHdr()
+      });
+    }catch(e){}
+  }
+  location.reload();
 }
 
 // ── INSIGHTS ──────────────────────────────────────────────────────────────────
